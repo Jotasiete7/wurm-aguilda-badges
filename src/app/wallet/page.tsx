@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import db from '@/lib/db';
 import Header from '@/components/Header';
+import RedeemForm from './RedeemForm';
 import styles from './wallet.module.css';
 
 // Badge interface from our DB schema
@@ -39,10 +40,13 @@ export default async function WalletPage() {
       <Header />
       <main className="container">
         <div className={styles.walletHeader}>
-          <h1 className={styles.title}>Meu Inventário</h1>
-          <p className={styles.subtitle}>
-            {userBadges.length} {userBadges.length === 1 ? 'Insígnia' : 'Insígnias'} coletadas
-          </p>
+          <div>
+            <h1 className={styles.title}>Meu Inventário</h1>
+            <p className={styles.subtitle}>
+              {userBadges.length} {userBadges.length === 1 ? 'Insígnia' : 'Insígnias'} coletadas
+            </p>
+          </div>
+          <RedeemForm />
         </div>
 
         {userBadges.length === 0 ? (
