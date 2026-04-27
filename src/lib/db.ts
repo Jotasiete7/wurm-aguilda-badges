@@ -1,14 +1,12 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import fs from 'fs';
 
-// Database file will be created in the root of the project
 const dbPath = path.join(process.cwd(), 'guilda.db');
 
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
-// Initialize schema if not exists
 const schema = `
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,

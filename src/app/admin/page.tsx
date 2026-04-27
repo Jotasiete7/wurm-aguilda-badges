@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation';
 import db from '@/lib/db';
 import Header from '@/components/Header';
 import styles from './admin.module.css';
-import { createBadge, createCode, assignBadgeManually, updateBadge } from './actions';
+import AdminForm from './AdminForm';
+import ImagePreviewInput from './ImagePreviewInput';
+import { createBadge, createCode, assignBadgeManually } from './actions';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -17,16 +19,19 @@ export default async function AdminPage() {
         <Header />
         <main className="container" style={{ textAlign: 'center', marginTop: '5rem' }}>
           <h1>Acesso Negado</h1>
-          <p>Você não possui privilégios da Guilda para acessar esta área.</p>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Você não possui privilégios da Guilda para acessar esta área.</p>
         </main>
       </div>
     );
   }
 
   const badges = db.prepare('SELECT * FROM badges ORDER BY created_at DESC').all() as any[];
-  const codes = db.prepare('SELECT codes.*, badges.name as badge_name FROM codes JOIN badges ON codes.badge_id = badges.id ORDER BY codes.created_at DESC').all() as any[];
+  const codes = db.prepare(`
+    SELECT codes.*, badges.name as badge_name
+    FROM codes JOIN badges ON codes.badge_id = badges.id
+    ORDER BY codes.created_at DESC
+  `).all() as any[];
 
-  // Stats: resgates por badge
   const badgeStats = db.prepare(`
     SELECT badges.id, badges.name, badges.rarity, COUNT(user_badges.id) as total
     FROM badges
@@ -35,9 +40,8 @@ export default async function AdminPage() {
     ORDER BY total DESC
   `).all() as any[];
 
-  // Ranking: top colecionadores
   const ranking = db.prepare(`
-    SELECT users.username, users.avatar, COUNT(user_badges.id) as total
+    SELECT users.username, users.avatar, users.discord_id, COUNT(user_badges.id) as total
     FROM users
     JOIN user_badges ON users.id = user_badges.user_id
     GROUP BY users.id
@@ -51,198 +55,143 @@ export default async function AdminPage() {
       <main className="container">
         <h1 className={styles.title}>Painel da Guilda</h1>
 
-        {/* ── STATS ── */}
+        {/* ── MÉTRICAS ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>📊 Métricas dos Emblemas</h2>
-          <div className={styles.statsGrid}>
-            {badgeStats.map((b: any) => (
-              <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', gap: '1rem' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 600 }}>{b.name}</p>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{b.rarity}</p>
+          {badgeStats.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>Ainda sem dados.</p>
+          ) : (
+            <div className={styles.statsGrid}>
+              {badgeStats.map((b: any) => (
+                <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', gap: '1rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: 600 }}>{b.name}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{b.rarity}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{b.total}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates</p>
+                  </div>
+                  <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', flexShrink: 0 }}>
+                    ✏ Editar
+                  </a>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{b.total}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates</p>
-                </div>
-                <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', flexShrink: 0 }}>
-                  ✏ Editar
-                </a>
-              </div>
-            ))}
-            {badgeStats.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Ainda sem resgates.</p>}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ── RANKING ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>🏆 Ranking de Colecionadores</h2>
-          <div className={styles.rankingList}>
-            {ranking.map((u: any, i: number) => (
-              <div key={u.username} className={styles.rankItem}>
-                <span className={styles.rankPos}>#{i + 1}</span>
-                {u.avatar && (
-                  <img src={u.avatar} alt={u.username} className={styles.rankAvatar} />
-                )}
-                <span className={styles.rankName}>{u.username}</span>
-                <span className={styles.rankCount}>{u.total} emblema{u.total !== 1 ? 's' : ''}</span>
+          {ranking.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>Ainda sem dados de ranking.</p>
+          ) : (
+            <div className={styles.rankingList}>
+              {ranking.map((u: any, i: number) => (
+                <div key={u.discord_id} className={styles.rankItem}>
+                  <span className={styles.rankPos}>#{i + 1}</span>
+                  {u.avatar && <img src={u.avatar} alt={u.username} className={styles.rankAvatar} />}
+                  <span className={styles.rankName}>{u.username}</span>
+                  <span className={styles.rankCount}>{u.total} emblema{u.total !== 1 ? 's' : ''}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── CRIAR INSÍGNIA ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>⚔ Forjar Nova Insígnia</h2>
+          <div className="card" style={{ maxWidth: 640 }}>
+            <AdminForm action={createBadge} submitLabel="Forjar Insígnia">
+              <div className={styles.formGroup}>
+                <label>Nome</label>
+                <input type="text" name="name" className="input" required maxLength={80} />
               </div>
-            ))}
-            {ranking.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Ainda sem dados de ranking.</p>}
-          </div>
-        </section>
-
-        {/* ── CRIAR / EDITAR BADGE ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>⚔ Gerenciar Insígnias</h2>
-          <div className={styles.grid}>
-            {/* Criar */}
-            <div className="card">
-              <h3>Forjar Nova Insígnia</h3>
-              <form action={createBadge} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label>Descrição</label>
+                <textarea name="description" className={`input ${styles.textarea}`} rows={3} maxLength={500} />
+              </div>
+              <ImagePreviewInput />
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Nome</label>
-                  <input type="text" name="name" className="input" required />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Descrição</label>
-                  <input type="text" name="description" className="input" />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>URL da Imagem</label>
-                  <input type="text" name="image_url" className="input" required />
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Categoria</label>
-                    <select name="category" className="input" required>
-                      <option value="Evento">Evento</option>
-                      <option value="Ofício">Ofício</option>
-                      <option value="Contribuição">Contribuição</option>
-                      <option value="Combate">Combate</option>
-                      <option value="Território">Território</option>
-                      <option value="Segredo">Segredo</option>
-                    </select>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Raridade</label>
-                    <select name="rarity" className="input" required>
-                      <option value="Comum">Comum</option>
-                      <option value="Rara">Rara</option>
-                      <option value="Epica">Épica</option>
-                      <option value="Lendaria">Lendária</option>
-                    </select>
-                  </div>
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Forjar Insígnia</button>
-              </form>
-            </div>
-
-            {/* Editar Badges existentes */}
-            <div className="card">
-              <h3>Editar Insígnia Existente</h3>
-              {badges.length === 0 ? (
-                <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Nenhuma insígnia forjada ainda.</p>
-              ) : (
-                <div className={styles.editList}>
-                  {badges.map((b: any) => (
-                    <details key={b.id} className={styles.editDetails}>
-                      <summary className={styles.editSummary}>
-                        <span>{b.name}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.rarity}</span>
-                      </summary>
-                      <form action={updateBadge} className={styles.form} style={{ marginTop: '1rem' }}>
-                        <input type="hidden" name="id" value={b.id} />
-                        <div className={styles.formGroup}>
-                          <label>Nome</label>
-                          <input type="text" name="name" defaultValue={b.name} className="input" required />
-                        </div>
-                        <div className={styles.formGroup}>
-                          <label>Descrição</label>
-                          <input type="text" name="description" defaultValue={b.description || ''} className="input" />
-                        </div>
-                        <div className={styles.formGroup}>
-                          <label>URL da Imagem</label>
-                          <input type="text" name="image_url" defaultValue={b.image_url} className="input" required />
-                        </div>
-                        <div className={styles.formRow}>
-                          <div className={styles.formGroup}>
-                            <label>Categoria</label>
-                            <select name="category" className="input" defaultValue={b.category}>
-                              <option value="Evento">Evento</option>
-                              <option value="Ofício">Ofício</option>
-                              <option value="Contribuição">Contribuição</option>
-                              <option value="Combate">Combate</option>
-                              <option value="Território">Território</option>
-                              <option value="Segredo">Segredo</option>
-                            </select>
-                          </div>
-                          <div className={styles.formGroup}>
-                            <label>Raridade</label>
-                            <select name="rarity" className="input" defaultValue={b.rarity}>
-                              <option value="Comum">Comum</option>
-                              <option value="Rara">Rara</option>
-                              <option value="Epica">Épica</option>
-                              <option value="Lendaria">Lendária</option>
-                            </select>
-                          </div>
-                        </div>
-                        <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '0.5rem' }}>Salvar Alterações</button>
-                      </form>
-                    </details>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* ── CÓDIGOS ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🔑 Gerar e Atribuir</h2>
-          <div className={styles.grid}>
-            <div className="card">
-              <h3>Gerar Código de Resgate</h3>
-              <form action={createCode} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label>Selecionar Insígnia</label>
-                  <select name="badge_id" className="input" required>
-                    {badges.map((b: any) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                    {badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
+                  <label>Categoria</label>
+                  <select name="category" className="input" required>
+                    <option value="Evento">Evento</option>
+                    <option value="Ofício">Ofício</option>
+                    <option value="Contribuição">Contribuição</option>
+                    <option value="Combate">Combate</option>
+                    <option value="Território">Território</option>
+                    <option value="Segredo">Segredo</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Código (Ex: GUILDA-2024)</label>
-                  <input type="text" name="code" className="input" required />
+                  <label>Raridade</label>
+                  <select name="rarity" className="input" required>
+                    <option value="Comum">Comum</option>
+                    <option value="Rara">Rara</option>
+                    <option value="Epica">Épica</option>
+                    <option value="Lendaria">Lendária</option>
+                  </select>
                 </div>
+              </div>
+            </AdminForm>
+          </div>
+        </section>
+
+        {/* ── GERAR CÓDIGO ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>🔑 Gerar Código de Resgate</h2>
+          <div className="card" style={{ maxWidth: 640 }}>
+            <AdminForm action={createCode} submitLabel="Gerar Código">
+              <div className={styles.formGroup}>
+                <label>Insígnia</label>
+                <select name="badge_id" className="input" required>
+                  {badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
+                  {badges.map((b: any) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Código (Ex: FESTA-2026)</label>
+                <input type="text" name="code" className="input" required minLength={3} maxLength={40}
+                  style={{ fontFamily: 'monospace', letterSpacing: 1 }} />
+              </div>
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Limite de Usos (Vazio = Ilimitado)</label>
+                  <label>Limite de Usos (vazio = ilimitado)</label>
                   <input type="number" name="max_uses" className="input" min="1" />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Gerar Código</button>
-              </form>
-            </div>
+                <div className={styles.formGroup}>
+                  <label>Expiração (opcional)</label>
+                  <input type="datetime-local" name="expires_at" className="input" />
+                </div>
+              </div>
+            </AdminForm>
+          </div>
+        </section>
 
-            <div className="card">
-              <h3>Atribuir Manualmente</h3>
-              <form action={assignBadgeManually} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label>Selecionar Insígnia</label>
-                  <select name="badge_id" className="input" required>
-                    {badges.map((b: any) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Discord ID do Membro</label>
-                  <input type="text" name="discord_id" className="input" required />
-                </div>
-                <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '0.5rem' }}>Conceder</button>
-              </form>
-            </div>
+        {/* ── ATRIBUIÇÃO MANUAL ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>🎖 Atribuir Manualmente</h2>
+          <div className="card" style={{ maxWidth: 640 }}>
+            <AdminForm action={assignBadgeManually} submitLabel="Conceder Insígnia" variant="accent">
+              <div className={styles.formGroup}>
+                <label>Insígnia</label>
+                <select name="badge_id" className="input" required>
+                  {badges.map((b: any) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Discord ID do Membro</label>
+                <input type="text" name="discord_id" className="input" required
+                  placeholder="O membro precisa ter feito login pelo menos uma vez" />
+              </div>
+            </AdminForm>
           </div>
         </section>
 
@@ -257,18 +206,22 @@ export default async function AdminPage() {
                   <th>Insígnia</th>
                   <th>Usos</th>
                   <th>Limite</th>
+                  <th>Expira em</th>
                 </tr>
               </thead>
               <tbody>
                 {codes.length === 0 ? (
-                  <tr><td colSpan={4} style={{ textAlign: 'center', opacity: 0.5 }}>Nenhum código gerado.</td></tr>
+                  <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>Nenhum código gerado.</td></tr>
                 ) : (
                   codes.map((c: any) => (
                     <tr key={c.id}>
-                      <td style={{ fontFamily: 'monospace', color: 'var(--accent)' }}>{c.code}</td>
+                      <td style={{ fontFamily: 'monospace', color: 'var(--accent)', letterSpacing: 1 }}>{c.code}</td>
                       <td>{c.badge_name}</td>
                       <td>{c.used_count}</td>
-                      <td>{c.max_uses ?? 'Ilimitado'}</td>
+                      <td>{c.max_uses ?? '∞'}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        {c.expires_at ? new Date(c.expires_at).toLocaleDateString('pt-BR') : '—'}
+                      </td>
                     </tr>
                   ))
                 )}
