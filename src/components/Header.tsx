@@ -1,13 +1,20 @@
 import React from 'react';
 import styles from './Header.module.css';
 import { auth, signOut } from '@/auth';
+import EcosystemDropdown from './EcosystemDropdown';
 
 export default async function Header() {
   const session = await auth();
 
   return (
     <header className={styles.header}>
-      <div className={styles.brand}>Guilda Badges</div>
+      <div className={styles.brandContainer}>
+        <EcosystemDropdown />
+        <div className={styles.divider}></div>
+        <div className={styles.brand}>
+          A Guilda <span>Badges</span>
+        </div>
+      </div>
       
       {session?.user && (
         <div className={styles.userSection}>

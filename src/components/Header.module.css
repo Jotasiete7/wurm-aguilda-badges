@@ -3,15 +3,46 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: var(--bg-secondary);
+  background-color: rgba(10, 10, 12, 0.9);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.brandContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-color);
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .divider {
+    display: block;
+  }
 }
 
 .brand {
+  font-family: serif;
   font-weight: 700;
   font-size: 1.25rem;
-  color: var(--accent);
+  color: var(--text-main);
   letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.brand span {
+  color: var(--accent);
 }
 
 .userSection {

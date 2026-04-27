@@ -1,0 +1,86 @@
+.dropdownContainer {
+  position: relative;
+}
+
+.trigger {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.trigger:hover {
+  color: var(--text-main);
+  background-color: var(--bg-secondary);
+}
+
+.triggerOpen {
+  color: var(--accent);
+  background-color: var(--bg-secondary);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 14rem;
+  background-color: var(--bg-secondary);
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0;
+  z-index: 50;
+}
+
+.menuHeader {
+  padding: 0.5rem 1rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.25rem;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  transition: all 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent);
+}
+
+.menuItemCurrent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent);
+  background-color: rgba(212, 175, 55, 0.1);
+  border-left: 2px solid var(--accent);
+  cursor: default;
+}
+
+.currentBadge {
+  margin-left: auto;
+  font-size: 0.5625rem;
+  opacity: 0.6;
+}
