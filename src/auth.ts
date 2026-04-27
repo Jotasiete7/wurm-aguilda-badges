@@ -21,13 +21,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, profile, account }) {
       if (account?.provider === "teste_local") {
-        db.prepare('INSERT OR IGNORE INTO users (id, discord_id, username, avatar) VALUES (?, ?, ?, ?)')
-          .run(user.id, user.id, user.name, user.image);
+        await db.from('users').upsert({ id: user.id, discord_id: user.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
         return true;
       }
       if (profile?.id) {
-        db.prepare('INSERT OR IGNORE INTO users (id, discord_id, username, avatar) VALUES (?, ?, ?, ?)')
-          .run(profile.id, profile.id, user.name, user.image);
+        await db.from('users').upsert({ id: profile.id, discord_id: profile.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
       }
       return true;
     },

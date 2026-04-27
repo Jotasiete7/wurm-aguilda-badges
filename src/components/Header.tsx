@@ -10,7 +10,7 @@ export default async function Header() {
 
   let isAdmin = false;
   if (session?.user?.id) {
-    const adminRow = db.prepare('SELECT id FROM admins WHERE discord_id = ?').get(session.user.id);
+    const { data: adminRow } = await db.from('admins').select('id').eq('discord_id', session.user.id).single();
     isAdmin = !!adminRow;
   }
 
