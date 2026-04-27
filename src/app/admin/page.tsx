@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import styles from './admin.module.css';
 import AdminForm from './AdminForm';
 import ImagePreviewInput from './ImagePreviewInput';
+import MembersTab from './MembersTab';
 import { createBadge, createCode, assignBadgeManually } from './actions';
 
 export default async function AdminPage() {
@@ -40,6 +41,19 @@ export default async function AdminPage() {
   const ranking = rankingRaw?.map((u: any) => ({
     username: u.username, avatar: u.avatar, discord_id: u.discord_id, total: u.user_badges?.length || 0
   })).filter(u => u.total > 0).sort((a, b) => b.total - a.total).slice(0, 10) || [];
+
+  // Fetch all members + admin status for the Members tab
+  const { data: allAdmins } = await db.from('admins').select('discord_id');
+  const adminIds = new Set((allAdmins || []).map((a: any) => a.discord_id));
+  const { data: allUsersRaw } = await db.from('users').select('discord_id, username, display_name, avatar, user_badges(id)').order('username');
+  const allMembers = (allUsersRaw || []).map((u: any) => ({
+    discord_id: u.discord_id,
+    username: u.username,
+    display_name: u.display_name || null,
+    avatar: u.avatar,
+    badge_count: u.user_badges?.length || 0,
+    is_admin: adminIds.has(u.discord_id),
+  }));
 
   return (
     <div className={styles.wrapper}>
@@ -221,6 +235,12 @@ export default async function AdminPage() {
             </table>
           </div>
         </section>
+        {/* ── MEMBROS ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>👥 Gerenciar Membros</h2>
+          <MembersTab members={allMembers} />
+        </section>
+
       </main>
     </div>
   );

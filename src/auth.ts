@@ -25,7 +25,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
       if (profile?.id) {
-        await db.from('users').upsert({ id: profile.id, discord_id: profile.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
+        const { error } = await db.from('users').upsert({ id: profile.id, discord_id: profile.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
+        if (error) {
+          console.error("Erro ao salvar usuário no banco:", error);
+        }
       }
       return true;
     },

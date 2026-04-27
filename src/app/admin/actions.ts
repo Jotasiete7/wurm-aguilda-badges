@@ -117,3 +117,40 @@ export async function assignBadgeManually(formData: FormData) {
   revalidatePath('/admin');
   return { success: true, message: 'Insígnia concedida com sucesso!' };
 }
+
+export async function updateDisplayName(formData: FormData) {
+  await checkAdmin();
+
+  const discord_id = (formData.get('discord_id') as string || '').trim();
+  const display_name = truncate((formData.get('display_name') as string || '').trim(), 40);
+
+  if (!discord_id) return { success: false, message: 'ID do membro inválido.' };
+
+  const { error } = await db.from('users').update({ display_name: display_name || null }).eq('discord_id', discord_id);
+  if (error) return { success: false, message: 'Erro ao salvar. Tente novamente.' };
+
+  revalidatePath('/admin');
+  revalidatePath('/wallet');
+  return { success: true, message: display_name ? `Nick atualizado para "${display_name}"!` : 'Nick personalizado removido.' };
+}
+
+export async function toggleAdmin(formData: FormData) {
+  await checkAdmin();
+
+  const discord_id = (formData.get('discord_id') as string || '').trim();
+  const action = formData.get('action') as string;
+
+  if (!discord_id) return { success: false, message: 'ID inválido.' };
+
+  if (action === 'add') {
+    const { data: exists } = await db.from('admins').select('id').eq('discord_id', discord_id).single();
+    if (exists) return { success: false, message: 'Este membro já é admin.' };
+    await db.from('admins').insert({ discord_id });
+    revalidatePath('/admin');
+    return { success: true, message: 'Admin concedido com sucesso!' };
+  } else {
+    await db.from('admins').delete().eq('discord_id', discord_id);
+    revalidatePath('/admin');
+    return { success: true, message: 'Admin removido.' };
+  }
+}
