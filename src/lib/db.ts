@@ -7,9 +7,12 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn('⚠️ Supabase credentials not found in environment variables. Database features will not work.');
 }
 
-// We use the service role key or anon key (service role preferred for backend to bypass RLS since we are doing admin stuff too)
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: false },
-});
+// We use the service role key or anon key
+// We provide dummy fallbacks so the Next.js build doesn't crash during static analysis if env vars are missing
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseKey || 'placeholder_key', 
+  { auth: { persistSession: false } }
+);
 
 export default supabase;
