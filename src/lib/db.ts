@@ -1,68 +1,15 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-const dbPath = path.join(process.cwd(), 'guilda.db');
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+if (!supabaseUrl || !supabaseKey) {
+  console.warn('⚠️ Supabase credentials not found in environment variables. Database features will not work.');
+}
 
-const schema = `
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
-  discord_id TEXT UNIQUE NOT NULL,
-  username TEXT NOT NULL,
-  avatar TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+// We use the service role key or anon key (service role preferred for backend to bypass RLS since we are doing admin stuff too)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+});
 
-CREATE TABLE IF NOT EXISTS admins (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  discord_id TEXT UNIQUE NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS badges (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  image_url TEXT NOT NULL,
-  category TEXT NOT NULL,
-  rarity TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS codes (
-  id TEXT PRIMARY KEY,
-  code TEXT UNIQUE NOT NULL,
-  badge_id TEXT NOT NULL,
-  max_uses INTEGER,
-  used_count INTEGER DEFAULT 0,
-  expires_at DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(badge_id) REFERENCES badges(id)
-);
-
-CREATE TABLE IF NOT EXISTS user_badges (
-  id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
-  badge_id TEXT NOT NULL,
-  date_earned DATETIME DEFAULT CURRENT_TIMESTAMP,
-  source TEXT NOT NULL,
-  FOREIGN KEY(user_id) REFERENCES users(id),
-  FOREIGN KEY(badge_id) REFERENCES badges(id)
-);
-
-CREATE TABLE IF NOT EXISTS code_redemptions (
-  id TEXT PRIMARY KEY,
-  code_id TEXT NOT NULL,
-  user_id TEXT NOT NULL,
-  redeemed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(code_id) REFERENCES codes(id),
-  FOREIGN KEY(user_id) REFERENCES users(id)
-);
-`;
-
-db.exec(schema);
-
-export default db;
+export default supabase;
