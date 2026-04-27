@@ -27,20 +27,22 @@ export default async function WalletPage() {
   const userId = session.user.id;
 
   // All badges in the system with owned status for this user
-  const allBadges = db.prepare(`
-    SELECT
-      badges.*,
-      user_badges.date_earned,
-      user_badges.source,
-      CASE WHEN user_badges.id IS NOT NULL THEN 1 ELSE 0 END as owned
-    FROM badges
-    LEFT JOIN user_badges
-      ON badges.id = user_badges.badge_id
-      AND user_badges.user_id = ?
-    ORDER BY owned DESC, badges.rarity, badges.name
-  `).all(userId) as (BadgeEntry & { owned: 0 | 1 })[];
+  const { data: badgesRaw } = await db.from('badges').select('*');
+  const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', userId);
 
-  const badges: BadgeEntry[] = allBadges.map(b => ({ ...b, owned: b.owned === 1 }));
+  const badges: BadgeEntry[] = (badgesRaw || []).map((b: any) => {
+    const ub = userBadgesRaw?.find((u: any) => u.badge_id === b.id);
+    return {
+      ...b,
+      date_earned: ub ? ub.date_earned : null,
+      source: ub ? ub.source : null,
+      owned: !!ub,
+    };
+  }).sort((a, b) => {
+    if (a.owned && !b.owned) return -1;
+    if (!a.owned && b.owned) return 1;
+    return a.name.localeCompare(b.name);
+  });
   const owned = badges.filter(b => b.owned);
   const total = badges.length;
 

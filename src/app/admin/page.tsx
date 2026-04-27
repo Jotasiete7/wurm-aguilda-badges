@@ -12,7 +12,8 @@ export default async function AdminPage() {
   const session = await auth();
   if (!session?.user?.id) redirect('/');
 
-  const isAdmin = db.prepare('SELECT id FROM admins WHERE discord_id = ?').get(session.user.id);
+  const { data: adminRow } = await db.from('admins').select('id').eq('discord_id', session.user.id).single();
+  const isAdmin = !!adminRow;
   if (!isAdmin) {
     return (
       <div className={styles.wrapper}>
@@ -25,29 +26,20 @@ export default async function AdminPage() {
     );
   }
 
-  const badges = db.prepare('SELECT * FROM badges ORDER BY created_at DESC').all() as any[];
-  const codes = db.prepare(`
-    SELECT codes.*, badges.name as badge_name
-    FROM codes JOIN badges ON codes.badge_id = badges.id
-    ORDER BY codes.created_at DESC
-  `).all() as any[];
+  const { data: badges } = await db.from('badges').select('*').order('created_at', { ascending: false });
+  
+  const { data: codesRaw } = await db.from('codes').select('*, badges(name)').order('created_at', { ascending: false });
+  const codes = codesRaw?.map((c: any) => ({ ...c, badge_name: c.badges?.name })) || [];
 
-  const badgeStats = db.prepare(`
-    SELECT badges.id, badges.name, badges.rarity, COUNT(user_badges.id) as total
-    FROM badges
-    LEFT JOIN user_badges ON badges.id = user_badges.badge_id
-    GROUP BY badges.id
-    ORDER BY total DESC
-  `).all() as any[];
+  const { data: badgeStatsRaw } = await db.from('badges').select('id, name, rarity, user_badges(id)');
+  const badgeStats = badgeStatsRaw?.map((b: any) => ({
+    id: b.id, name: b.name, rarity: b.rarity, total: b.user_badges?.length || 0
+  })).sort((a, b) => b.total - a.total) || [];
 
-  const ranking = db.prepare(`
-    SELECT users.username, users.avatar, users.discord_id, COUNT(user_badges.id) as total
-    FROM users
-    JOIN user_badges ON users.id = user_badges.user_id
-    GROUP BY users.id
-    ORDER BY total DESC
-    LIMIT 10
-  `).all() as any[];
+  const { data: rankingRaw } = await db.from('users').select('username, avatar, discord_id, user_badges(id)');
+  const ranking = rankingRaw?.map((u: any) => ({
+    username: u.username, avatar: u.avatar, discord_id: u.discord_id, total: u.user_badges?.length || 0
+  })).filter(u => u.total > 0).sort((a, b) => b.total - a.total).slice(0, 10) || [];
 
   return (
     <div className={styles.wrapper}>
@@ -148,8 +140,8 @@ export default async function AdminPage() {
               <div className={styles.formGroup}>
                 <label>Insígnia</label>
                 <select name="badge_id" className="input" required>
-                  {badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
-                  {badges.map((b: any) => (
+                  {!badges || badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
+                  {badges?.map((b: any) => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>
@@ -181,7 +173,7 @@ export default async function AdminPage() {
               <div className={styles.formGroup}>
                 <label>Insígnia</label>
                 <select name="badge_id" className="input" required>
-                  {badges.map((b: any) => (
+                  {badges?.map((b: any) => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>

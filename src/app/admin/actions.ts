@@ -11,7 +11,7 @@ const VALID_RARITIES = ['Comum', 'Rara', 'Epica', 'Lendaria'];
 async function checkAdmin() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  const admin = db.prepare('SELECT id FROM admins WHERE discord_id = ?').get(session.user.id);
+  const { data: admin } = await db.from('admins').select('id').eq('discord_id', session.user.id).single();
   if (!admin) throw new Error("Forbidden");
   return session.user.id;
 }
@@ -31,8 +31,7 @@ export async function createBadge(formData: FormData) {
   if (!VALID_RARITIES.includes(rarity)) return { success: false, message: 'Raridade inválida.' };
 
   const id = crypto.randomUUID();
-  db.prepare(`INSERT INTO badges (id, name, description, image_url, category, rarity) VALUES (?, ?, ?, ?, ?, ?)`)
-    .run(id, name, description, image_url, category, rarity);
+  await db.from('badges').insert({ id, name, description, image_url, category, rarity });
 
   revalidatePath('/admin');
   return { success: true, message: 'Insígnia forjada com sucesso!' };
@@ -54,8 +53,7 @@ export async function updateBadge(formData: FormData) {
   if (!VALID_CATEGORIES.includes(category)) return { success: false, message: 'Categoria inválida.' };
   if (!VALID_RARITIES.includes(rarity)) return { success: false, message: 'Raridade inválida.' };
 
-  db.prepare(`UPDATE badges SET name=?, description=?, image_url=?, category=?, rarity=? WHERE id=?`)
-    .run(name, description, image_url, category, rarity, id);
+  await db.from('badges').update({ name, description, image_url, category, rarity }).eq('id', id);
 
   revalidatePath('/admin');
   revalidatePath('/wallet');
@@ -75,7 +73,7 @@ export async function createCode(formData: FormData) {
   if (rawCode.length < 3 || rawCode.length > 40) return { success: false, message: 'Código deve ter entre 3 e 40 caracteres.' };
 
   // Ensure badge exists
-  const badge = db.prepare('SELECT id FROM badges WHERE id = ?').get(badge_id);
+  const { data: badge } = await db.from('badges').select('id').eq('id', badge_id).single();
   if (!badge) return { success: false, message: 'Insígnia não encontrada.' };
 
   const code = rawCode.toUpperCase().replace(/[^A-Z0-9\-_]/g, '');
@@ -84,10 +82,12 @@ export async function createCode(formData: FormData) {
   const id = crypto.randomUUID();
 
   try {
-    db.prepare(`INSERT INTO codes (id, code, badge_id, max_uses, expires_at) VALUES (?, ?, ?, ?, ?)`)
-      .run(id, code, badge_id, uses, expiry);
+    const { error } = await db.from('codes').insert({ id, code, badge_id, max_uses: uses, expires_at: expiry });
+    if (error) {
+      if (error.code === '23505') return { success: false, message: 'Esse código já existe. Escolha outro.' };
+      throw error;
+    }
   } catch (e: any) {
-    if (e.message?.includes('UNIQUE')) return { success: false, message: 'Esse código já existe. Escolha outro.' };
     throw e;
   }
 
@@ -104,16 +104,15 @@ export async function assignBadgeManually(formData: FormData) {
   if (!badge_id || !discord_id) return { success: false, message: 'Preencha todos os campos.' };
 
   // Check user exists
-  const user = db.prepare('SELECT id FROM users WHERE discord_id = ?').get(discord_id);
+  const { data: user } = await db.from('users').select('id').eq('discord_id', discord_id).single();
   if (!user) return { success: false, message: 'Usuário não encontrado. O membro precisa ter feito login pelo menos uma vez.' };
 
   // Avoid duplicates
-  const hasBadge = db.prepare('SELECT id FROM user_badges WHERE user_id = ? AND badge_id = ?').get(discord_id, badge_id);
+  const { data: hasBadge } = await db.from('user_badges').select('id').eq('user_id', discord_id).eq('badge_id', badge_id).single();
   if (hasBadge) return { success: false, message: 'Este membro já possui essa insígnia.' };
 
   const id = crypto.randomUUID();
-  db.prepare(`INSERT INTO user_badges (id, user_id, badge_id, source) VALUES (?, ?, ?, 'manual')`)
-    .run(id, discord_id, badge_id);
+  await db.from('user_badges').insert({ id, user_id: discord_id, badge_id, source: 'manual' });
 
   revalidatePath('/admin');
   return { success: true, message: 'Insígnia concedida com sucesso!' };

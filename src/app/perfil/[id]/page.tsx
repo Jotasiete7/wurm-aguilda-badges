@@ -16,31 +16,25 @@ export default async function PublicProfilePage({ params }: Props) {
   const { id } = await params;
 
   // 1. Check if user exists
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as { id: string; username: string; avatar: string | null } | undefined;
+  const { data: user } = await db.from('users').select('*').eq('id', id).single();
 
   if (!user) {
     notFound();
   }
 
   // 2. Fetch all badges owned by the user
-  const ownedBadges = db.prepare(`
-    SELECT
-      badges.*,
-      user_badges.date_earned,
-      user_badges.source,
-      1 as owned
-    FROM badges
-    INNER JOIN user_badges
-      ON badges.id = user_badges.badge_id
-      AND user_badges.user_id = ?
-    ORDER BY badges.rarity, badges.name
-  `).all(id) as (BadgeEntry & { owned: 1 })[];
+  const { data: userBadgesRaw } = await db.from('user_badges').select('date_earned, source, badges(*)').eq('user_id', id);
 
-  // Convert to boolean for components
-  const badges: BadgeEntry[] = ownedBadges.map(b => ({ ...b, owned: true }));
+  // Convert to expected format
+  const badges: BadgeEntry[] = (userBadgesRaw || []).map((ub: any) => ({
+    ...ub.badges,
+    date_earned: ub.date_earned,
+    source: ub.source,
+    owned: true
+  })).sort((a, b) => a.name.localeCompare(b.name));
   
   // 3. Get total ecosystem badges for progress
-  const total = (db.prepare('SELECT COUNT(*) as count FROM badges').get() as { count: number }).count;
+  const { count: total } = await db.from('badges').select('id', { count: 'exact', head: true });
 
   const profileUser = {
     name: user.username,

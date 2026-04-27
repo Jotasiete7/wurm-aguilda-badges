@@ -21,14 +21,14 @@ export default async function EditBadgePage({ params }: { params: Promise<{ id: 
   const session = await auth();
   if (!session?.user?.id) redirect('/');
 
-  const isAdmin = db.prepare('SELECT id FROM admins WHERE discord_id = ?').get(session.user.id);
+  const { data: isAdmin } = await db.from('admins').select('id').eq('discord_id', session.user.id).single();
   if (!isAdmin) redirect('/wallet');
 
-  const badge = db.prepare('SELECT * FROM badges WHERE id = ?').get(id) as Badge | undefined;
+  const { data: badge } = await db.from('badges').select('*').eq('id', id).single();
   if (!badge) notFound();
 
   // Count how many users have this badge
-  const count = (db.prepare('SELECT COUNT(*) as total FROM user_badges WHERE badge_id = ?').get(id) as any).total;
+  const { count } = await db.from('user_badges').select('id', { count: 'exact', head: true }).eq('badge_id', id);
 
   async function handleUpdate(formData: FormData) {
     'use server';
