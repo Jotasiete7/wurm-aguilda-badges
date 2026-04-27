@@ -26,8 +26,8 @@ export default async function Home() {
           </svg>
         </div>
 
-        <p className={styles.eyebrow}>A Guilda</p>
-        <h1 className={styles.title}>Badges</h1>
+        <p className={styles.eyebrow}>// A Guilda</p>
+        <h1 className={styles.title}>Guilda <span>Badges</span></h1>
         <p className={styles.subtitle}>
           Sua carteira de identidade e reputação. Obtenha e exiba insígnias místicas do ecossistema.
         </p>

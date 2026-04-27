@@ -1,108 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
 :root {
-  --bg-primary: #0a0a0c;
-  --bg-secondary: #13141a;
-  --bg-tertiary: #1b1c24;
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
-  --accent: #d4af37; /* Gold */
-  
+  /* ── Core (identical to Recipes/Ecosystem) ── */
+  --bg-primary:   #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary:  #111111;
+  --border-color: #262626;
+
+  --text-main:    #e5e5e5;
+  --text-muted:   #737373;
+
+  /* Guild Gold — warmer/sandier like Recipes */
+  --accent:       #d4b483;
+  --accent-dim:   #8a7453;
+
   /* Rarities */
-  --rarity-common: #6b7280;
-  --rarity-rare: #3b82f6;
-  --rarity-epic: #a855f7;
-  --rarity-legendary: #eab308;
-  
-  --border-color: #27272a;
+  --rarity-common:    #6b7280;
+  --rarity-rare:      #3b82f6;
+  --rarity-epic:      #a855f7;
+  --rarity-legendary: #d4b483;
+
+  /* Fonts */
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-main);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+/* ── Scrollbar (matches Recipes) ── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* Base UI Elements */
+a { color: inherit; text-decoration: none; }
+
+/* ── Layout ── */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
 
+/* ── Buttons ── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
   background-color: var(--bg-tertiary);
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn:hover {
-  background-color: #27272a;
+  background-color: #1a1a1a;
   border-color: var(--text-muted);
 }
 
+/* Discord Blue */
 .btn-primary {
-  background-color: #5865F2; /* Discord Color */
+  background-color: #5865F2;
   border-color: #4752C4;
+  color: #fff;
 }
-
 .btn-primary:hover {
   background-color: #4752C4;
   border-color: #3b45a6;
 }
 
+/* Guild Gold outline */
 .btn-accent {
   background-color: transparent;
   color: var(--accent);
-  border-color: var(--accent);
+  border-color: var(--accent-dim);
 }
-
 .btn-accent:hover {
-  background-color: rgba(212, 175, 55, 0.1);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  background-color: rgba(212, 180, 131, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(212, 180, 131, 0.2);
 }
 
-/* Inputs */
+/* ── Inputs ── */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.9rem;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--text-main);
-  font-family: inherit;
-  transition: border-color 0.2s;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 2px rgba(212,180,131,0.1);
 }
 
-/* Cards */
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Cards ── */
 .card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 1.5rem;
+}
+
+.card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-main);
 }

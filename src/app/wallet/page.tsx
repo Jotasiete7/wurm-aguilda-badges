@@ -41,9 +41,9 @@ export default async function WalletPage() {
       <main className="container">
         <div className={styles.walletHeader}>
           <div>
-            <h1 className={styles.title}>Meu Inventário</h1>
+            <h1 className={styles.title}>Meu <strong>Inventário</strong></h1>
             <p className={styles.subtitle}>
-              {userBadges.length} {userBadges.length === 1 ? 'Insígnia' : 'Insígnias'} coletadas
+              {userBadges.length} {userBadges.length === 1 ? 'insígnia coletada' : 'insígnias coletadas'}
             </p>
           </div>
           <RedeemForm />
