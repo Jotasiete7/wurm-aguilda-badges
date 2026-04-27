@@ -5,7 +5,7 @@
 .walletHeader {
   margin-bottom: 3rem;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 2rem;
+  padding: 2rem 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -48,7 +48,6 @@
 .emptyState h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: var(--text-main);
 }
 
 .emptyState p {
@@ -56,109 +55,24 @@
   max-width: 400px;
 }
 
-/* Wallet Grid */
+/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 2rem;
 }
 
-.badgeCard {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-}
-
-.badgeCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background-color: var(--border-color);
-  transition: background-color 0.3s ease;
-}
-
-.badgeCard:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-}
-
-/* Rarities */
-.rarity-comum::before { background-color: var(--rarity-common); }
-.rarity-incomum::before { background-color: var(--rarity-common); } /* placeholder if uncommon is added */
-.rarity-rara::before { background-color: var(--rarity-rare); }
-.rarity-epica::before { background-color: var(--rarity-epic); }
-.rarity-lenda::before, .rarity-lendária::before, .rarity-legendary::before { background-color: var(--rarity-legendary); }
-
-.rarity-rara:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); }
-.rarity-epica:hover { box-shadow: 0 10px 25px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); }
-.rarity-lenda:hover, .rarity-lendária:hover, .rarity-legendary:hover { 
-  box-shadow: 0 0 30px rgba(234, 179, 8, 0.3); 
-  border-color: rgba(234, 179, 8, 0.8); 
-}
-
-.imageContainer {
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.badgeImage {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
-  transition: transform 0.3s;
-}
-
-.badgeCard:hover .badgeImage {
-  transform: scale(1.1);
-}
-
-.badgeInfo {
-  padding: 1.25rem;
-}
-
-.badgeName {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.badgeMeta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.badgeCategory {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-/* Redeem Form UI */
+/* Redeem Form */
 .redeemContainer {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(255,255,255,0.02);
   border: 1px solid var(--border-color);
   padding: 1rem 1.5rem;
   border-radius: 8px;
-  min-width: 320px;
+  min-width: 300px;
 }
 
 .redeemContainer h3 {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -180,7 +94,7 @@
 .msgSuccess {
   margin-top: 0.75rem;
   padding: 0.5rem;
-  background-color: rgba(34, 197, 94, 0.1);
+  background-color: rgba(34,197,94,0.1);
   color: #4ade80;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -190,7 +104,7 @@
 .msgError {
   margin-top: 0.75rem;
   padding: 0.5rem;
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239,68,68,0.1);
   color: #f87171;
   border-radius: 4px;
   font-size: 0.85rem;

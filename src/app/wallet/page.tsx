@@ -3,10 +3,10 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import db from '@/lib/db';
 import Header from '@/components/Header';
+import BadgeCard from '@/components/BadgeCard';
 import RedeemForm from './RedeemForm';
 import styles from './wallet.module.css';
 
-// Badge interface from our DB schema
 interface Badge {
   id: string;
   name: string;
@@ -15,6 +15,7 @@ interface Badge {
   category: string;
   rarity: string;
   date_earned: string;
+  source: string;
 }
 
 export default async function WalletPage() {
@@ -24,15 +25,14 @@ export default async function WalletPage() {
     redirect('/');
   }
 
-  // Fetch the user's badges from the database using better-sqlite3
   const stmt = db.prepare(`
-    SELECT badges.*, user_badges.date_earned 
+    SELECT badges.*, user_badges.date_earned, user_badges.source
     FROM user_badges 
     JOIN badges ON user_badges.badge_id = badges.id 
     WHERE user_badges.user_id = ?
     ORDER BY user_badges.date_earned DESC
   `);
-  
+
   const userBadges = stmt.all(session.user.id) as Badge[];
 
   return (
@@ -58,20 +58,7 @@ export default async function WalletPage() {
         ) : (
           <div className={styles.grid}>
             {userBadges.map((badge) => (
-              <div 
-                key={`${badge.id}-${badge.date_earned}`} 
-                className={`${styles.badgeCard} ${styles[`rarity-${badge.rarity.toLowerCase()}`]}`}
-              >
-                <div className={styles.imageContainer}>
-                  <img src={badge.image_url} alt={badge.name} className={styles.badgeImage} />
-                </div>
-                <div className={styles.badgeInfo}>
-                  <h3 className={styles.badgeName}>{badge.name}</h3>
-                  <div className={styles.badgeMeta}>
-                    <span className={styles.badgeCategory}>{badge.category}</span>
-                  </div>
-                </div>
-              </div>
+              <BadgeCard key={`${badge.id}-${badge.date_earned}`} badge={badge} />
             ))}
           </div>
         )}
