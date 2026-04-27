@@ -56,8 +56,8 @@ export default async function AdminPage() {
           <h2 className={styles.sectionTitle}>📊 Métricas dos Emblemas</h2>
           <div className={styles.statsGrid}>
             {badgeStats.map((b: any) => (
-              <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
-                <div>
+              <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', gap: '1rem' }}>
+                <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 600 }}>{b.name}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{b.rarity}</p>
                 </div>
@@ -65,6 +65,9 @@ export default async function AdminPage() {
                   <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{b.total}</p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates</p>
                 </div>
+                <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', flexShrink: 0 }}>
+                  ✏ Editar
+                </a>
               </div>
             ))}
             {badgeStats.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Ainda sem resgates.</p>}
