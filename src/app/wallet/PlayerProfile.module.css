@@ -1,0 +1,151 @@
+.profileCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Left: Avatar + Info ── */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatarWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.titleBadge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.username {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.rarityBreakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.rarityPill {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.rarity-comum    { color: #6b7280; background-color: rgba(107,114,128,0.1); border-color: rgba(107,114,128,0.2); }
+.rarity-rara     { color: #60a5fa; background-color: rgba(59,130,246,0.1);  border-color: rgba(59,130,246,0.2); }
+.rarity-epica    { color: #c084fc; background-color: rgba(168,85,247,0.1);  border-color: rgba(168,85,247,0.2); }
+.rarity-lendaria { color: var(--accent); background-color: rgba(212,180,131,0.1); border-color: rgba(212,180,131,0.25); }
+
+/* ── Right: Progress ── */
+.right {
+  flex: 1;
+  max-width: 300px;
+  min-width: 200px;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progressText {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.progressCount {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.progressTrack {
+  height: 4px;
+  background-color: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressHint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+}
