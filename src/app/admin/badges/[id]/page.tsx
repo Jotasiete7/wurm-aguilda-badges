@@ -15,18 +15,20 @@ interface Badge {
   rarity: string;
 }
 
-export default async function EditBadgePage({ params }: { params: { id: string } }) {
+export default async function EditBadgePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   const session = await auth();
   if (!session?.user?.id) redirect('/');
 
   const isAdmin = db.prepare('SELECT id FROM admins WHERE discord_id = ?').get(session.user.id);
   if (!isAdmin) redirect('/wallet');
 
-  const badge = db.prepare('SELECT * FROM badges WHERE id = ?').get(params.id) as Badge | undefined;
+  const badge = db.prepare('SELECT * FROM badges WHERE id = ?').get(id) as Badge | undefined;
   if (!badge) notFound();
 
   // Count how many users have this badge
-  const count = (db.prepare('SELECT COUNT(*) as total FROM user_badges WHERE badge_id = ?').get(params.id) as any).total;
+  const count = (db.prepare('SELECT COUNT(*) as total FROM user_badges WHERE badge_id = ?').get(id) as any).total;
 
   async function handleUpdate(formData: FormData) {
     'use server';
