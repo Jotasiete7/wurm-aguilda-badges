@@ -21,22 +21,42 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, profile, account }) {
       if (account?.provider === "teste_local") {
-        await db.from('users').upsert({ id: user.id, discord_id: user.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
+        await db.from('users').upsert(
+          { id: user.id, discord_id: user.id, username: user.name, avatar: user.image },
+          { onConflict: 'id' }
+        );
         return true;
       }
-      if (profile?.id) {
-        const { error } = await db.from('users').upsert({ id: profile.id, discord_id: profile.id, username: user.name, avatar: user.image }, { onConflict: 'id' });
+      // For Discord: profile.id is the real Discord snowflake ID
+      if (account?.provider === "discord" && profile?.id) {
+        const discordId = String(profile.id);
+        const { error } = await db.from('users').upsert(
+          { id: discordId, discord_id: discordId, username: user.name, avatar: user.image },
+          { onConflict: 'id' }
+        );
         if (error) {
           console.error("Erro ao salvar usuário no banco:", error);
         }
       }
       return true;
     },
-    session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub
+
+    // Store the Discord ID explicitly in the JWT token
+    async jwt({ token, profile, account }) {
+      if (account?.provider === "discord" && profile?.id) {
+        token.discordId = String(profile.id);
+        token.sub = String(profile.id); // Override sub with real Discord ID
       }
-      return session
+      return token;
+    },
+
+    // Expose the Discord ID on the session
+    session({ session, token }) {
+      if (session.user) {
+        // Use our explicit discordId if available, otherwise fall back to sub
+        session.user.id = (token.discordId as string) || token.sub || session.user.id;
+      }
+      return session;
     },
   },
 })
