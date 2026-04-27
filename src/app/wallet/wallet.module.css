@@ -1,0 +1,144 @@
+.wrapper {
+  min-height: 100vh;
+}
+
+.walletHeader {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  background-color: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyState h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.emptyState p {
+  color: var(--text-muted);
+  max-width: 400px;
+}
+
+/* Wallet Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.badgeCard {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.badgeCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--border-color);
+  transition: background-color 0.3s ease;
+}
+
+.badgeCard:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Rarities */
+.rarity-comum::before { background-color: var(--rarity-common); }
+.rarity-incomum::before { background-color: var(--rarity-common); } /* placeholder if uncommon is added */
+.rarity-rara::before { background-color: var(--rarity-rare); }
+.rarity-epica::before { background-color: var(--rarity-epic); }
+.rarity-lenda::before, .rarity-lendária::before, .rarity-legendary::before { background-color: var(--rarity-legendary); }
+
+.rarity-rara:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); }
+.rarity-epica:hover { box-shadow: 0 10px 25px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); }
+.rarity-lenda:hover, .rarity-lendária:hover, .rarity-legendary:hover { 
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.3); 
+  border-color: rgba(234, 179, 8, 0.8); 
+}
+
+.imageContainer {
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.badgeImage {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+  transition: transform 0.3s;
+}
+
+.badgeCard:hover .badgeImage {
+  transform: scale(1.1);
+}
+
+.badgeInfo {
+  padding: 1.25rem;
+}
+
+.badgeName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.badgeMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.badgeCategory {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
