@@ -12,11 +12,8 @@ export default async function Home() {
   return (
     <div className={styles.heroContainer}>
 
-      {/* Ambient light orbs */}
-      <div className={styles.orbTop} aria-hidden="true" />
-      <div className={styles.orbBottom} aria-hidden="true" />
-
       {/* Decorative corner marks */}
+
       <span className={`${styles.corner} ${styles.cornerTL}`} aria-hidden="true" />
       <span className={`${styles.corner} ${styles.cornerTR}`} aria-hidden="true" />
       <span className={`${styles.corner} ${styles.cornerBL}`} aria-hidden="true" />
@@ -106,8 +103,17 @@ export default async function Home() {
           )}
         </div>
 
+        {/* LGPD Privacy Notice */}
+        <div className={styles.privacyNotice} role="note" aria-label="Aviso de privacidade">
+          <p>
+            <span>Ao entrar, coletamos apenas seu nome de usuário, avatar e ID público do Discord</span>{' '}para identificá-lo no sistema de emblemas da Guilda.
+            Os dados não são compartilhados com terceiros e podem ser removidos mediante solicitação,
+            em conformidade com a <span>LGPD (Lei nº 13.709/2018)</span>.
+          </p>
+        </div>
+
         {/* Tagline */}
-        <p className={styles.tagline}>No commands. No clutter. Just identity.</p>
+        <p className={styles.tagline}>no commands. no clutter. just identity.</p>
 
       </div>
     </div>

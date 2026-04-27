@@ -149,3 +149,43 @@
   color: var(--text-muted);
   margin-top: 0.4rem;
 }
+
+/* Discord username shown when display_name overrides it */
+.discordSub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: -0.25rem;
+  opacity: 0.6;
+}
+
+/* Share collection button */
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.875rem;
+  padding: 0.4rem 0.875rem;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shareBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  background-color: rgba(212,180,131,0.05);
+}
+
+.shareBtn:active {
+  transform: scale(0.97);
+}
+

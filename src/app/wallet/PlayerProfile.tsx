@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import styles from './PlayerProfile.module.css';
 import type { BadgeEntry } from './page';
 
@@ -16,12 +18,13 @@ function getTitle(count: number): string {
 }
 
 interface Props {
-  user: { name: string; image: string | null; id: string };
+  user: { name: string; discordName?: string; image: string | null; id: string };
   owned: BadgeEntry[];
   total: number;
 }
 
 export default function PlayerProfile({ user, owned, total }: Props) {
+  const [copied, setCopied] = useState(false);
   const title = getTitle(owned.length);
   const progress = total > 0 ? Math.round((owned.length / total) * 100) : 0;
 
@@ -32,6 +35,21 @@ export default function PlayerProfile({ user, owned, total }: Props) {
     ).length;
     return acc;
   }, {} as Record<string, number>);
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/perfil/${user.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // fallback for browsers without clipboard API
+      window.prompt('Copie o link da sua coleção:', url);
+    }
+  };
+
+  // Show discord name as subtitle only if display_name was set (they differ)
+  const hasCustomName = user.discordName && user.discordName !== user.name;
 
   return (
     <div className={styles.profileCard}>
@@ -46,6 +64,9 @@ export default function PlayerProfile({ user, owned, total }: Props) {
         </div>
         <div className={styles.userInfo}>
           <h2 className={styles.username}>{user.name}</h2>
+          {hasCustomName && (
+            <p className={styles.discordSub}>@{user.discordName}</p>
+          )}
           <div className={styles.rarityBreakdown}>
             {RARITIES.map(r => (
               <span key={r} className={`${styles.rarityPill} ${styles[`rarity-${r.toLowerCase()}`]}`}>
@@ -70,6 +91,31 @@ export default function PlayerProfile({ user, owned, total }: Props) {
         <p className={styles.progressHint}>
           {progress}% das insígnias do ecossistema coletadas
         </p>
+
+        {/* Share button */}
+        <button
+          onClick={handleShare}
+          className={styles.shareBtn}
+          title="Copiar link da sua coleção"
+        >
+          {copied ? (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Link copiado!
+            </>
+          ) : (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+              Compartilhar coleção
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

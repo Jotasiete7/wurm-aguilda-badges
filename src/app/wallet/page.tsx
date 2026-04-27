@@ -46,8 +46,12 @@ export default async function WalletPage() {
   const owned = badges.filter(b => b.owned);
   const total = badges.length;
 
+  // Fetch display_name from DB (may differ from Discord username)
+  const { data: dbUser } = await db.from('users').select('display_name, username').eq('id', userId).single();
+
   const user = {
-    name: session.user.name || 'Aventureiro',
+    name: dbUser?.display_name || dbUser?.username || session.user.name || 'Aventureiro',
+    discordName: session.user.name || '',
     image: session.user.image || null,
     id: userId,
   };

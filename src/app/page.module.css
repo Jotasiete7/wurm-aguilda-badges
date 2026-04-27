@@ -1,65 +1,55 @@
-/* ── Hero Container ── */
+/* ── Hero Container — #050505 exato do ecossistema ── */
 .heroContainer {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #06060a;
+  background-color: #050505;
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle grid — less contrast, more elegant */
+/* Grid igual ao Recipes/Portal — cinza neutro, sem tom dourado */
 .heroContainer::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(212,180,131,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(212,180,131,0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse 70% 70% at center, black 0%, transparent 100%);
+    linear-gradient(#262626 1px, transparent 1px),
+    linear-gradient(90deg, #262626 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.18;
+  mask-image: radial-gradient(ellipse 65% 65% at center, black 0%, transparent 100%);
   pointer-events: none;
 }
 
-/* ── Ambient orbs ── */
-.orbTop {
+/* ── Ambient glow — sutil, apenas dourado no centro ── */
+.heroContainer::after {
+  content: '';
   position: absolute;
-  top: -120px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
+  transform: translate(-50%, -60%);
+  width: 520px;
+  height: 520px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,180,131,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212,180,131,0.055) 0%, transparent 65%);
   pointer-events: none;
 }
 
-.orbBottom {
-  position: absolute;
-  bottom: -180px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(88,101,242,0.04) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* ── Corner marks ── */
+/* ── Corner marks — mesma estética do portal/recipes ── */
 .corner {
   position: absolute;
-  width: 18px;
-  height: 18px;
-  border-color: rgba(212,180,131,0.18);
+  width: 14px;
+  height: 14px;
+  border-color: rgba(212,180,131,0.15);
   border-style: solid;
   pointer-events: none;
 }
-.cornerTL { top: 24px; left: 24px; border-width: 1px 0 0 1px; }
-.cornerTR { top: 24px; right: 24px; border-width: 1px 1px 0 0; }
-.cornerBL { bottom: 24px; left: 24px; border-width: 0 0 1px 1px; }
-.cornerBR { bottom: 24px; right: 24px; border-width: 0 1px 1px 0; }
+.cornerTL { top: 20px; left: 20px; border-width: 1px 0 0 1px; }
+.cornerTR { top: 20px; right: 20px; border-width: 1px 1px 0 0; }
+.cornerBL { bottom: 20px; left: 20px; border-width: 0 0 1px 1px; }
+.cornerBR { bottom: 20px; right: 20px; border-width: 0 1px 1px 0; }
 
 /* ── Hero Content ── */
 .heroContent {
@@ -69,22 +59,23 @@
   flex-direction: column;
   align-items: center;
   padding: 2rem;
+  max-width: 480px;
 }
 
 /* ── Emblem ── */
 .emblemWrap {
   position: relative;
-  margin-bottom: 2.5rem;
-  animation: emblemEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  margin-bottom: 2rem;
+  animation: emblemEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: 0.1s;
 }
 
 .emblemSvg {
-  width: 96px;
-  height: 116px;
-  filter: drop-shadow(0 0 20px rgba(212,180,131,0.2));
+  width: 80px;
+  height: 96px;
+  filter: drop-shadow(0 0 16px rgba(212,180,131,0.15));
   animation: floatShield 7s ease-in-out infinite;
-  animation-delay: 1.3s;
+  animation-delay: 1.1s;
 }
 
 .emblemGlow {
@@ -92,82 +83,80 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,180,131,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212,180,131,0.1) 0%, transparent 70%);
   pointer-events: none;
-  animation: pulseGlow 4s ease-in-out infinite;
+  animation: pulseGlow 5s ease-in-out infinite;
   animation-delay: 1.5s;
 }
 
 @keyframes floatShield {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
 }
 
 @keyframes emblemEntrance {
-  from { opacity: 0; transform: translateY(-16px) scale(0.92); }
+  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ── Eyebrow ── */
+/* ── Eyebrow — mono igual ao Recipes ── */
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: var(--accent-dim);
+  color: #8a7453; /* --accent-dim do ecossistema */
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  margin-bottom: 1rem;
-  animation: fadeDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  margin-bottom: 0.875rem;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: 0.4s;
 }
 
-/* ── Title ── */
+/* ── Title — Playfair igual ao Recipes "Wurm Recipes" ── */
 .title {
-  font-family: var(--font-serif);
-  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.75rem, 7vw, 3.75rem);
   font-weight: 700;
-  letter-spacing: -1px;
-  margin-bottom: 1.5rem;
-  color: var(--text-main);
+  letter-spacing: -0.5px;
+  margin-bottom: 1.25rem;
+  color: #e5e5e5; /* --text do ecossistema */
   line-height: 1.05;
-  animation: fadeDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: 0.55s;
 }
 
+/* "Badges" em dourado exato do ecossistema — mesmo padrão do "Recipes" em destaque */
 .titleAccent {
-  background: linear-gradient(135deg, #d4b483 0%, #f0d9a8 45%, #a8823e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #d4b483;
   font-style: italic;
 }
 
-/* ── Subtitle ── */
+/* ── Subtitle — mesmo tom muted do ecossistema ── */
 .subtitle {
-  font-size: 1rem;
-  color: #a3a3a3;
-  max-width: 380px;
+  font-size: 0.9rem;
+  color: #737373; /* --muted exato */
+  max-width: 360px;
   line-height: 1.8;
-  margin-bottom: 0.75rem;
-  animation: fadeDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.75s;
+  margin-bottom: 0.625rem;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.72s;
 }
 
 /* ── Supporting text ── */
 .supportText {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #525252;
-  margin-bottom: 2.75rem;
-  animation: fadeDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.9s;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.86s;
 }
 
 /* ── Button group ── */
@@ -176,8 +165,8 @@
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  animation: fadeDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 1.05s;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 1s;
 }
 
 /* ── Discord Button ── */
@@ -186,58 +175,50 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 0.875rem 2rem;
+  padding: 0.8rem 1.875rem;
   background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  font-family: var(--font-sans);
-  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; /* mesmo raio do ecossistema */
+  font-family: 'Inter', sans-serif;
+  font-size: 0.925rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   letter-spacing: 0.01em;
-  min-width: 260px;
+  min-width: 248px;
   position: relative;
   overflow: hidden;
-  box-shadow:
-    0 0 0 0 rgba(88,101,242,0),
-    0 4px 24px rgba(88,101,242,0.25),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 4px 20px rgba(88,101,242,0.22);
 }
 
 .discordBtn::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-  transition: left 0.5s ease;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+  transition: left 0.45s ease;
 }
 
 .discordBtn:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #6875f5 0%, #5865F2 100%);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #6473f3 0%, #5865F2 100%);
   box-shadow:
-    0 0 0 3px rgba(88,101,242,0.15),
-    0 8px 32px rgba(88,101,242,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+    0 0 0 2px rgba(88,101,242,0.2),
+    0 6px 28px rgba(88,101,242,0.35);
 }
 
-.discordBtn:hover::before {
-  left: 100%;
-}
+.discordBtn:hover::before { left: 100%; }
 
 .discordBtn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 12px rgba(88,101,242,0.3);
+  box-shadow: 0 2px 10px rgba(88,101,242,0.25);
 }
 
 .discordIcon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -247,38 +228,63 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1.25rem;
+  padding: 0.45rem 1.25rem;
   background: transparent;
-  color: #525252;
-  border: 1px solid #1f1f1f;
-  border-radius: 8px;
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
+  color: #404040;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 180px;
+  letter-spacing: 0.05em;
 }
 
 .devBtn:hover {
-  color: var(--text-muted);
-  border-color: #333;
-  background: rgba(255,255,255,0.02);
+  color: #737373;
+  border-color: #262626;
+}
+
+/* ── Privacy notice — LGPD ── */
+.privacyNotice {
+  margin-top: 2.5rem;
+  max-width: 340px;
+  padding: 0.75rem 1rem;
+  background: rgba(38,38,38,0.35);
+  border: 1px solid #1c1c1c;
+  border-radius: 4px;
+  animation: fadeUp 0.7s ease both;
+  animation-delay: 1.25s;
+}
+
+.privacyNotice p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #404040;
+  line-height: 1.65;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.privacyNotice p span {
+  color: #525252;
 }
 
 /* ── Tagline ── */
 .tagline {
-  margin-top: 3rem;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: #2e2e2e;
+  margin-top: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: #242424;
   letter-spacing: 0.2em;
   text-transform: lowercase;
-  animation: fadeDown 1s ease both;
-  animation-delay: 1.4s;
+  animation: fadeUp 0.7s ease both;
+  animation-delay: 1.45s;
 }
 
-/* ── Shared animation ── */
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-12px); }
+/* ── Shared entrance animation ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
