@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Guilda Badges 🏅
 
-## Getting Started
+Um sistema web de **Identidade Social e Reputação** construído para ecossistemas de comunidades de Minecraft/Wurm Online (desacoplado do jogo). O MVP foca numa experiência de "Wallet/Inventário", onde usuários autênticam via Discord para acessar insígnias (badges) recebidas, representando suas conquistas, participações em eventos e ofícios.
 
-First, run the development server:
+## 🌟 Princípios do Projeto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Identidade (Badges):** Insígnias desenhadas de forma externa. O banco guarda referências (link), raridades e descrições.  
+- **Distribuição (Códigos):** Os usuários não "pegam" as badges no sistema, elas são distribuídas via códigos (ilimitados ou uso único) concedidos por líderes da guilda ou automatizações futuras, ou atribuídas manualmente por admins.
+- **Ecossistema:** Todo login é baseado em Discord OAuth2, removendo a necessidade de de registro formal com senhas.
+- **Aparência de Jogo:** O design não passa a sensação de painel web, mas sim de um Inventário de um MMORPG Premium com cores atreladas a raridade (ex: Comum, Épico, Lendário).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Tecnologias
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework:** Next.js 15 (App Router)
+- **Estilização:** CSS Vanilla puro (Design System próprio `globals.css`)
+- **Autenticação:** NextAuth.js (Auth.js Beta) via interface **Discord**
+- **Banco de Dados:** SQLite (via biblioteca `better-sqlite3`) para um banco leve e relacional (`guilda.db`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Como Iniciar (Setup de Desenvolvimento)
 
-## Learn More
+1. **Requisitos:** Node.js 18+ (20+ recomendado para Next.js 15).
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Crie e configure o arquivo `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+4. Configure as chaves do Discord dentro do novo arquivo:
+   - Crie uma aplicação no [Discord Dev Portal](https://discord.com/developers/applications).
+   - Obtenha o seu `Client ID` e o `Client Secret`.
+   - Na aba OAuth2 da Aplicação, configure o **Redirect URI** como: `http://localhost:3000/api/auth/callback/discord`.
+5. Gere ou preencha a chave `AUTH_SECRET` (pode rodar `npx auth secret` ou usar uma string randômica aleatória grande).
+6. Rode a aplicação em modo dev:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+O banco SQLite (`guilda.db`) será auto-provisionado no primeiro boot caso as interfaces de banco de dados (`src/lib/db.ts`) sejam chamadas.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🗄️ Estrutura do Banco de Dados Inicial
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O sistema utiliza o SQLite para suportar os seguintes modelos principais:
+- **users:** Perfil vinculado à ID do discord.
+- **admins:** Cadastro simples contendo os IDs do Discord que possuem liberação de ADM.
+- **badges:** Catálogo principal. Id, nome, imagem_url, raridade.
+- **codes:** Sistema de geração de distribuição. Traz código legível, vinculo com a badge referenciada e limites de uso.
+- **user_badges:** Tabela relacional pilar mantendo o registro de quem detém quais insígnias (O Inventário real do usuário).
 
-## Deploy on Vercel
+## ✅ Próximos Passos Priorizados
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Estruturação da Autenticação via Discord (`Layout Configs`). ✔️ Em andamento
+2. Interface do Usuário (Logins, Listagem do Inventário `Wallet`). 
+3. Formulários de Admins Server Actions para CRUD em Códigos e Insígnias.
+4. Lógica de Resgate de Códigos transacional.
