@@ -10,8 +10,9 @@ interface Badge {
   image_url: string;
   category: string;
   rarity: string;
-  date_earned: string;
-  source: string;
+  date_earned: string | null;
+  source: string | null;
+  owned?: boolean;
 }
 
 interface BadgeModalProps {
@@ -40,36 +41,39 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const rarityClass = badge.rarity.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') as string;
 
-  const formattedDate = new Date(badge.date_earned).toLocaleDateString('pt-BR', {
+  const formattedDate = badge.date_earned ? new Date(badge.date_earned).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
-  });
+  }) : 'Desconhecido';
+
+  const isGhost = badge.owned === false;
 
   return (
     <>
       <div
-        className={`${styles.badgeCard} ${styles[`rarity-${rarityClass}`]}`}
-        onClick={() => setIsOpen(true)}
+        className={`${styles.badgeCard} ${styles[`rarity-${rarityClass}`]} ${isGhost ? styles.ghostCard : ''}`}
+        onClick={() => !isGhost && setIsOpen(true)}
         role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && setIsOpen(true)}
+        tabIndex={isGhost ? -1 : 0}
+        onKeyDown={(e) => !isGhost && e.key === 'Enter' && setIsOpen(true)}
       >
         <div className={styles.imageContainer}>
           <img
             src={badge.image_url}
-            alt={badge.name}
-            className={styles.badgeImage}
+            alt={isGhost ? 'Bloqueada' : badge.name}
+            className={`${styles.badgeImage} ${isGhost ? styles.ghostImage : ''}`}
             onError={(e) => {
               (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23222"/><text x="60" y="65" text-anchor="middle" font-size="40">🏅</text></svg>`;
             }}
           />
+          {isGhost && <div className={styles.lockIcon}>🔒</div>}
         </div>
         <div className={styles.badgeInfo}>
-          <h3 className={styles.badgeName}>{badge.name}</h3>
+          <h3 className={styles.badgeName}>{isGhost ? '???' : badge.name}</h3>
           <div className={styles.badgeMeta}>
             <span className={styles.badgeCategory}>{badge.category}</span>
-            <span className={`${styles.rarityTag} ${styles[`rarityTag-${rarityClass}`]}`}>
+            <span className={`${styles.rarityTag} ${styles[`rarityTag-${rarityClass}`]} ${isGhost ? styles.ghostTag : ''}`}>
               {RARITY_LABELS[badge.rarity] || badge.rarity}
             </span>
           </div>
@@ -118,7 +122,7 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
                 </div>
                 <div className={styles.metaItem}>
                   <span className={styles.metaLabel}>Origem</span>
-                  <span className={styles.metaValue}>{SOURCE_LABELS[badge.source] || badge.source}</span>
+                  <span className={styles.metaValue}>{badge.source ? (SOURCE_LABELS[badge.source] || badge.source) : 'Desconhecido'}</span>
                 </div>
               </div>
             </div>

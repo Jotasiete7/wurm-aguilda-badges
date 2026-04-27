@@ -1,0 +1,123 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.filterGroup {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+.chipActive {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  border-color: var(--text-main);
+}
+
+.chip-comum.chipActive { background-color: rgba(156, 163, 175, 0.2); color: var(--rarity-common); border-color: var(--rarity-common); }
+.chip-rara.chipActive { background-color: rgba(59, 130, 246, 0.2); color: var(--rarity-rare); border-color: var(--rarity-rare); }
+.chip-epica.chipActive { background-color: rgba(168, 85, 247, 0.2); color: var(--rarity-epic); border-color: var(--rarity-epic); }
+.chip-lendaria.chipActive { background-color: rgba(212, 180, 131, 0.2); color: var(--rarity-legendary); border-color: var(--rarity-legendary); }
+
+.ghostToggle {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ghostToggle:hover {
+  color: var(--text-main);
+}
+
+.ghostToggleActive {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-color);
+}
+
+.countLine {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+}
+
+.ghostCount {
+  opacity: 0.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.cardWrapper {
+  animation: fadeInDelay 0.5s ease backwards;
+  animation-delay: calc(var(--delay) * 40ms);
+}
+
+@keyframes fadeInDelay {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -218,3 +218,38 @@
   font-weight: 500;
   color: var(--text-main);
 }
+
+/* ── Ghost State ── */
+.ghostCard {
+  cursor: not-allowed;
+  opacity: 0.8;
+  filter: grayscale(0.5);
+}
+
+.ghostCard:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border-color);
+}
+
+.ghostImage {
+  filter: blur(4px) brightness(0.4) drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+
+.ghostCard:hover .ghostImage {
+  transform: none;
+}
+
+.lockIcon {
+  position: absolute;
+  font-size: 2rem;
+  z-index: 10;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+.ghostTag {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-color);
+}
+
