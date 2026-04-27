@@ -79,8 +79,7 @@ export default async function AdminPage() {
               <div key={u.username} className={styles.rankItem}>
                 <span className={styles.rankPos}>#{i + 1}</span>
                 {u.avatar && (
-                  <img src={u.avatar} alt={u.username} className={styles.rankAvatar}
-                    onError={() => {}} />
+                  <img src={u.avatar} alt={u.username} className={styles.rankAvatar} />
                 )}
                 <span className={styles.rankName}>{u.username}</span>
                 <span className={styles.rankCount}>{u.total} emblema{u.total !== 1 ? 's' : ''}</span>
