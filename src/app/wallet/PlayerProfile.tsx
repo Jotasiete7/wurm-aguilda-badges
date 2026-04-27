@@ -9,13 +9,6 @@ const RARITY_LABELS: Record<string, string> = {
   Comum: 'Comuns', Rara: 'Raras', Epica: 'Épicas', Lendaria: 'Lendárias',
 };
 
-function getTitle(count: number): string {
-  if (count === 0) return 'Recruta';
-  if (count <= 2) return 'Aprendiz';
-  if (count <= 5) return 'Veterano';
-  if (count <= 10) return 'Guardião';
-  return 'Lendário';
-}
 
 interface Props {
   user: { name: string; discordName?: string; image: string | null; id: string };
@@ -25,7 +18,6 @@ interface Props {
 
 export default function PlayerProfile({ user, owned, total }: Props) {
   const [copied, setCopied] = useState(false);
-  const title = getTitle(owned.length);
   const progress = total > 0 ? Math.round((owned.length / total) * 100) : 0;
 
   const rarityCounts = RARITIES.reduce((acc, r) => {
@@ -60,7 +52,6 @@ export default function PlayerProfile({ user, owned, total }: Props) {
           ) : (
             <div className={styles.avatarFallback}>{user.name[0]}</div>
           )}
-          <div className={styles.titleBadge}>{title}</div>
         </div>
         <div className={styles.userInfo}>
           <h2 className={styles.username}>{user.name}</h2>
