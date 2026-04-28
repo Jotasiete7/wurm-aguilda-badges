@@ -69,6 +69,11 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
               (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23222"/><text x="60" y="65" text-anchor="middle" font-size="40">🏅</text></svg>`;
             }}
           />
+          {!isGhost && (
+            <div className={styles.supplyLabel}>
+              {badge.total_count ?? 0}/{badge.max_supply ? badge.max_supply : '∞'}
+            </div>
+          )}
           {isGhost && <div className={styles.lockIcon}>🔒</div>}
         </div>
         <div className={styles.badgeInfo}>
