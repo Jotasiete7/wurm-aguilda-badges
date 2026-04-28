@@ -18,6 +18,8 @@ export interface BadgeEntry {
   date_earned: string | null;
   source: string | null;
   owned: boolean;
+  serial_number?: number;
+  max_supply?: number | null;
 }
 
 export default async function WalletPage() {
@@ -26,26 +28,43 @@ export default async function WalletPage() {
 
   const userId = session.user.id;
 
-  // All badges in the system with owned status for this user + total claims
-  const { data: badgesRaw } = await db.from('badges').select('*, user_badges(id)');
+  // All badges in the system + user's own badges
+  const { data: badgesRaw } = await db.from('badges').select('*');
   const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', userId);
 
-  const badges: BadgeEntry[] = (badgesRaw || []).map((b: any) => {
+  // To calculate the "Serial Number" (rank) for each badge the user owns
+  // We fetch the claim counts per badge up to the user's claim date
+  const badges: BadgeEntry[] = await Promise.all((badgesRaw || []).map(async (b: any) => {
     const ub = userBadgesRaw?.find((u: any) => u.badge_id === b.id);
+    
+    let serialNumber = undefined;
+    if (ub) {
+      // Count how many people claimed this badge on or before the user did
+      const { count } = await db
+        .from('user_badges')
+        .select('id', { count: 'exact', head: true })
+        .eq('badge_id', b.id)
+        .lte('created_at', ub.created_at);
+      serialNumber = count || 1;
+    }
+
     return {
       ...b,
       date_earned: ub ? ub.date_earned : null,
       source: ub ? ub.source : null,
       owned: !!ub,
-      total_count: b.user_badges?.length || 0,
+      serial_number: serialNumber,
     };
-  }).sort((a, b) => {
+  }));
+
+  const sortedBadges = badges.sort((a, b) => {
     if (a.owned && !b.owned) return -1;
     if (!a.owned && b.owned) return 1;
     return a.name.localeCompare(b.name);
   });
-  const owned = badges.filter(b => b.owned);
-  const total = badges.length;
+
+  const owned = sortedBadges.filter(b => b.owned);
+  const total = sortedBadges.length;
 
   // Fetch display_name from DB (may differ from Discord username)
   const { data: dbUser } = await db.from('users').select('display_name, username').eq('id', userId).single();

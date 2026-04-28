@@ -22,17 +22,31 @@ export default async function PublicProfilePage({ params }: Props) {
     notFound();
   }
 
-  // 2. Fetch all badges owned by the user + global owner count for each
-  const { data: userBadgesRaw } = await db.from('user_badges').select('date_earned, source, badges(*, user_badges(id))').eq('user_id', id);
+  // 2. Fetch all badges owned by the user
+  const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', id);
+  const { data: badgesRaw } = await db.from('badges').select('*');
 
-  // Convert to expected format
-  const badges: BadgeEntry[] = (userBadgesRaw || []).map((ub: any) => ({
-    ...ub.badges,
-    date_earned: ub.date_earned,
-    source: ub.source,
-    owned: true,
-    total_count: ub.badges?.user_badges?.length || 0,
-  })).sort((a, b) => a.name.localeCompare(b.name));
+  // Convert to expected format and calculate serial numbers
+  const badges: BadgeEntry[] = await Promise.all((userBadgesRaw || []).map(async (ub: any) => {
+    const b = badgesRaw?.find(badge => badge.id === ub.badge_id);
+    
+    // Count how many people claimed this badge on or before the user did
+    const { count } = await db
+      .from('user_badges')
+      .select('id', { count: 'exact', head: true })
+      .eq('badge_id', ub.badge_id)
+      .lte('created_at', ub.created_at);
+
+    return {
+      ...b,
+      date_earned: ub.date_earned,
+      source: ub.source,
+      owned: true,
+      serial_number: count || 1,
+    };
+  }));
+
+  const sortedBadges = badges.sort((a, b) => a.name.localeCompare(b.name));
   
   // 3. Get total ecosystem badges for progress
   const { count: total } = await db.from('badges').select('id', { count: 'exact', head: true });
