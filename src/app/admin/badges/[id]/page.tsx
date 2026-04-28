@@ -13,6 +13,7 @@ interface Badge {
   image_url: string;
   category: string;
   rarity: string;
+  max_supply: number | null;
 }
 
 export default async function EditBadgePage({ params }: { params: Promise<{ id: string }> }) {
@@ -106,6 +107,10 @@ export default async function EditBadgePage({ params }: { params: Promise<{ id: 
                     <option value="Epica">Épica</option>
                     <option value="Lendaria">Lendária</option>
                   </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Tiragem Máxima (vazio = ∞)</label>
+                  <input type="number" name="max_supply" defaultValue={badge.max_supply ?? ''} className="input" min="1" />
                 </div>
               </div>
 

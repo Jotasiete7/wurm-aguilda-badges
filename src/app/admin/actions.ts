@@ -24,6 +24,7 @@ export async function createBadge(formData: FormData) {
   const image_url = (formData.get('image_url') as string || '').trim();
   const category = formData.get('category') as string;
   const rarity = formData.get('rarity') as string;
+  const max_supply = formData.get('max_supply') ? parseInt(formData.get('max_supply') as string, 10) : null;
 
   if (!name) return { success: false, message: 'Nome é obrigatório.' };
   if (!isValidImageUrl(image_url)) return { success: false, message: 'URL da imagem inválida. Use um link HTTPS direto.' };
@@ -31,7 +32,7 @@ export async function createBadge(formData: FormData) {
   if (!VALID_RARITIES.includes(rarity)) return { success: false, message: 'Raridade inválida.' };
 
   const id = crypto.randomUUID();
-  await db.from('badges').insert({ id, name, description, image_url, category, rarity });
+  await db.from('badges').insert({ id, name, description, image_url, category, rarity, max_supply });
 
   revalidatePath('/admin');
   return { success: true, message: 'Insígnia forjada com sucesso!' };
@@ -46,6 +47,7 @@ export async function updateBadge(formData: FormData) {
   const image_url = (formData.get('image_url') as string || '').trim();
   const category = formData.get('category') as string;
   const rarity = formData.get('rarity') as string;
+  const max_supply = formData.get('max_supply') ? parseInt(formData.get('max_supply') as string, 10) : null;
 
   if (!id) return { success: false, message: 'ID inválido.' };
   if (!name) return { success: false, message: 'Nome é obrigatório.' };
@@ -53,7 +55,7 @@ export async function updateBadge(formData: FormData) {
   if (!VALID_CATEGORIES.includes(category)) return { success: false, message: 'Categoria inválida.' };
   if (!VALID_RARITIES.includes(rarity)) return { success: false, message: 'Raridade inválida.' };
 
-  await db.from('badges').update({ name, description, image_url, category, rarity }).eq('id', id);
+  await db.from('badges').update({ name, description, image_url, category, rarity, max_supply }).eq('id', id);
 
   revalidatePath('/admin');
   revalidatePath('/wallet');

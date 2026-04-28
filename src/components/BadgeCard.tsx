@@ -13,6 +13,8 @@ interface Badge {
   date_earned: string | null;
   source: string | null;
   owned?: boolean;
+  max_supply?: number | null;
+  total_count?: number;
 }
 
 interface BadgeModalProps {
@@ -123,6 +125,12 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
                 <div className={styles.metaItem}>
                   <span className={styles.metaLabel}>Origem</span>
                   <span className={styles.metaValue}>{badge.source ? (SOURCE_LABELS[badge.source] || badge.source) : 'Desconhecido'}</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>Tiragem</span>
+                  <span className={styles.metaValue} style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                    {badge.total_count ?? 0} / {badge.max_supply ? badge.max_supply : '∞'}
+                  </span>
                 </div>
               </div>
             </div>

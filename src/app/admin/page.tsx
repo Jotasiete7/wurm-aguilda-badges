@@ -32,9 +32,9 @@ export default async function AdminPage() {
   const { data: codesRaw } = await db.from('codes').select('*, badges(name)').order('created_at', { ascending: false });
   const codes = codesRaw?.map((c: any) => ({ ...c, badge_name: c.badges?.name })) || [];
 
-  const { data: badgeStatsRaw } = await db.from('badges').select('id, name, rarity, user_badges(id)');
+  const { data: badgeStatsRaw } = await db.from('badges').select('id, name, rarity, max_supply, user_badges(id)');
   const badgeStats = badgeStatsRaw?.map((b: any) => ({
-    id: b.id, name: b.name, rarity: b.rarity, total: b.user_badges?.length || 0
+    id: b.id, name: b.name, rarity: b.rarity, max_supply: b.max_supply, total: b.user_badges?.length || 0
   })).sort((a, b) => b.total - a.total) || [];
 
   const { data: rankingRaw } = await db.from('users').select('username, avatar, discord_id, user_badges(id)');
@@ -76,7 +76,7 @@ export default async function AdminPage() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{b.total}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates {b.max_supply ? `/ ${b.max_supply}` : '/ ∞'}</p>
                   </div>
                   <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', flexShrink: 0 }}>
                     ✏ Editar
@@ -140,6 +140,10 @@ export default async function AdminPage() {
                     <option value="Epica">Épica</option>
                     <option value="Lendaria">Lendária</option>
                   </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Tiragem Máxima (vazio = ∞)</label>
+                  <input type="number" name="max_supply" className="input" min="1" placeholder="Ex: 50" />
                 </div>
               </div>
             </AdminForm>

@@ -26,8 +26,8 @@ export default async function WalletPage() {
 
   const userId = session.user.id;
 
-  // All badges in the system with owned status for this user
-  const { data: badgesRaw } = await db.from('badges').select('*');
+  // All badges in the system with owned status for this user + total claims
+  const { data: badgesRaw } = await db.from('badges').select('*, user_badges(id)');
   const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', userId);
 
   const badges: BadgeEntry[] = (badgesRaw || []).map((b: any) => {
@@ -37,6 +37,7 @@ export default async function WalletPage() {
       date_earned: ub ? ub.date_earned : null,
       source: ub ? ub.source : null,
       owned: !!ub,
+      total_count: b.user_badges?.length || 0,
     };
   }).sort((a, b) => {
     if (a.owned && !b.owned) return -1;

@@ -22,15 +22,16 @@ export default async function PublicProfilePage({ params }: Props) {
     notFound();
   }
 
-  // 2. Fetch all badges owned by the user
-  const { data: userBadgesRaw } = await db.from('user_badges').select('date_earned, source, badges(*)').eq('user_id', id);
+  // 2. Fetch all badges owned by the user + global owner count for each
+  const { data: userBadgesRaw } = await db.from('user_badges').select('date_earned, source, badges(*, user_badges(id))').eq('user_id', id);
 
   // Convert to expected format
   const badges: BadgeEntry[] = (userBadgesRaw || []).map((ub: any) => ({
     ...ub.badges,
     date_earned: ub.date_earned,
     source: ub.source,
-    owned: true
+    owned: true,
+    total_count: ub.badges?.user_badges?.length || 0,
   })).sort((a, b) => a.name.localeCompare(b.name));
   
   // 3. Get total ecosystem badges for progress
