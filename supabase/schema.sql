@@ -74,7 +74,7 @@ CREATE OR REPLACE FUNCTION redeem_code_atomic(
   p_user_id TEXT
 ) RETURNS JSONB AS $$
 DECLARE
-  v_code_id UUID;
+  v_code_id TEXT;
   v_badge_id TEXT;
   v_max_uses INT;
   v_used_count INT;
@@ -107,11 +107,11 @@ BEGIN
 
   -- Insere a posse da insígnia
   INSERT INTO user_badges (id, user_id, badge_id, source) 
-  VALUES (gen_random_uuid(), p_user_id, v_badge_id, 'code');
+  VALUES (gen_random_uuid()::text, p_user_id, v_badge_id, 'code');
   
   -- Registra o resgate
   INSERT INTO code_redemptions (id, code_id, user_id)
-  VALUES (gen_random_uuid(), v_code_id, p_user_id);
+  VALUES (gen_random_uuid()::text, v_code_id, p_user_id);
 
   RETURN jsonb_build_object('success', true);
 END;
