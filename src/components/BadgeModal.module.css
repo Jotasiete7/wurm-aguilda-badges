@@ -10,6 +10,32 @@
   outline: none;
 }
 
+/* ── Tooltip ── */
+.badgeCard[data-date-earned]:hover::after {
+  content: "Conquistada em " attr(data-date-earned);
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.85);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  z-index: 20;
+  border: 1px solid var(--accent-dim);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, 4px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 .badgeCard::before {
   content: '';
   position: absolute;

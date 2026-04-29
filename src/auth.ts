@@ -30,12 +30,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // For Discord: profile.id is the real Discord snowflake ID
       if (account?.provider === "discord" && profile?.id) {
         const discordId = String(profile.id);
+
+        // Check if user is new before upserting
+        const { data: existingUser } = await db.from('users').select('id').eq('id', discordId).single();
+        const isNewUser = !existingUser;
+
         const { error } = await db.from('users').upsert(
           { id: discordId, discord_id: discordId, username: user.name, avatar: user.image },
           { onConflict: 'id' }
         );
+
         if (error) {
           console.error("Erro ao salvar usuário no banco:", error);
+        }
+
+        // Automatic "First Login" Badge
+        if (isNewUser) {
+          // Attempt to award the 'membro' badge if it exists in the system
+          const { data: badgeExists } = await db.from('badges').select('id').eq('id', 'membro').single();
+          if (badgeExists) {
+            await db.from('user_badges').insert({
+              id: crypto.randomUUID(),
+              user_id: discordId,
+              badge_id: 'membro',
+              source: 'system'
+            });
+          }
         }
       }
       return true;

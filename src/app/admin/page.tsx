@@ -179,6 +179,10 @@ export default async function AdminPage() {
                   <input type="datetime-local" name="expires_at" className="input" />
                 </div>
               </div>
+              <div className={styles.formGroup}>
+                <label>Nota Interna (Opcional - Ex: Evento de Construção)</label>
+                <input type="text" name="note" className="input" placeholder="Para controle interno dos admins" />
+              </div>
             </AdminForm>
           </div>
         </section>
@@ -217,6 +221,7 @@ export default async function AdminPage() {
                   <th>Usos</th>
                   <th>Limite</th>
                   <th>Expira em</th>
+                  <th>Nota</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,6 +236,9 @@ export default async function AdminPage() {
                       <td>{c.max_uses ?? '∞'}</td>
                       <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                         {c.expires_at ? new Date(c.expires_at).toLocaleDateString('pt-BR') : '—'}
+                      </td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={c.note}>
+                        {c.note || '—'}
                       </td>
                     </tr>
                   ))

@@ -56,6 +56,7 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
     <>
       <div
         className={`${styles.badgeCard} ${styles[`rarity-${rarityClass}`]} ${isGhost ? styles.ghostCard : ''}`}
+        data-date-earned={badge.owned ? formattedDate : undefined}
         onClick={() => !isGhost && setIsOpen(true)}
         role="button"
         tabIndex={isGhost ? -1 : 0}

@@ -26,7 +26,10 @@ export default async function Header() {
 
       <nav className={styles.nav}>
         {session?.user && (
-          <Link href="/wallet" className={styles.navLink}>Inventário</Link>
+          <>
+            <Link href="/wallet" className={styles.navLink}>Inventário</Link>
+            <Link href="/ranking" className={styles.navLink}>Hall da Fama</Link>
+          </>
         )}
         {isAdmin && (
           <Link href="/admin" className={styles.navLink + ' ' + styles.navLinkAdmin}>

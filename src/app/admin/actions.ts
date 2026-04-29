@@ -69,6 +69,7 @@ export async function createCode(formData: FormData) {
   const rawCode = (formData.get('code') as string || '').trim();
   const max_uses = formData.get('max_uses') as string;
   const expires_at = formData.get('expires_at') as string;
+  const note = (formData.get('note') as string || '').trim();
 
   if (!badge_id) return { success: false, message: 'Selecione uma insígnia.' };
   if (!rawCode) return { success: false, message: 'Código não pode estar vazio.' };
@@ -84,7 +85,7 @@ export async function createCode(formData: FormData) {
   const id = crypto.randomUUID();
 
   try {
-    const { error } = await db.from('codes').insert({ id, code, badge_id, max_uses: uses, expires_at: expiry });
+    const { error } = await db.from('codes').insert({ id, code, badge_id, max_uses: uses, expires_at: expiry, note: note || null });
     if (error) {
       if (error.code === '23505') return { success: false, message: 'Esse código já existe. Escolha outro.' };
       throw error;
