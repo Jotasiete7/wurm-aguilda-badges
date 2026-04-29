@@ -140,3 +140,19 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 1rem;
   color: var(--text-main);
 }
+
+/* ── Mobile Optimizations ── */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  
+  /* Prevent horizontal scroll on tables */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

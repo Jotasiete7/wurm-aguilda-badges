@@ -365,3 +365,46 @@
   flex-wrap: wrap;
 }
 
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .statsRow {
+    grid-template-columns: 1fr 80px;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .statsSupply {
+    grid-column: span 2;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border-color);
+  }
+
+  .statsCount {
+    text-align: right;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .table th:nth-child(4), 
+  .table td:nth-child(4),
+  .table th:nth-child(5),
+  .table td:nth-child(5) {
+    display: none; /* Hide less important columns on mobile table */
+  }
+
+  .memberCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .memberActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
