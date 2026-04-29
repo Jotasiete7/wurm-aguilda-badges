@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.codes (
   max_uses BIGINT,
   used_count BIGINT DEFAULT 0,
   expires_at TIMESTAMP WITH TIME ZONE,
+  note TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -56,3 +57,62 @@ CREATE TABLE IF NOT EXISTS public.code_redemptions (
   redeemed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(code_id, user_id)
 );
+
+-- security_logs
+CREATE TABLE IF NOT EXISTS public.security_logs (
+    id UUID PRIMARY KEY,
+    user_id TEXT,
+    ip_address TEXT,
+    action TEXT,
+    details JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Atomic Redemption Function
+CREATE OR REPLACE FUNCTION redeem_code_atomic(
+  p_code TEXT,
+  p_user_id TEXT
+) RETURNS JSONB AS $$
+DECLARE
+  v_code_id UUID;
+  v_badge_id TEXT;
+  v_max_uses INT;
+  v_used_count INT;
+  v_expires_at TIMESTAMP WITH TIME ZONE;
+BEGIN
+  -- Seleciona e bloqueia a linha para evitar concorrência (FOR UPDATE)
+  SELECT id, badge_id, max_uses, used_count, expires_at 
+  INTO v_code_id, v_badge_id, v_max_uses, v_used_count, v_expires_at
+  FROM codes WHERE code = p_code FOR UPDATE;
+
+  IF v_code_id IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'INVALID');
+  END IF;
+
+  IF v_expires_at IS NOT NULL AND v_expires_at < now() THEN
+    RETURN jsonb_build_object('success', false, 'error', 'EXPIRED');
+  END IF;
+
+  IF v_max_uses IS NOT NULL AND v_used_count >= v_max_uses THEN
+    RETURN jsonb_build_object('success', false, 'error', 'EXHAUSTED');
+  END IF;
+
+  -- Verifica se o usuário já tem a insígnia
+  IF EXISTS (SELECT 1 FROM user_badges WHERE user_id = p_user_id AND badge_id = v_badge_id) THEN
+    RETURN jsonb_build_object('success', false, 'error', 'OWNED');
+  END IF;
+
+  -- Incremento Atômico
+  UPDATE codes SET used_count = used_count + 1 WHERE id = v_code_id;
+
+  -- Insere a posse da insígnia
+  INSERT INTO user_badges (id, user_id, badge_id, source) 
+  VALUES (gen_random_uuid(), p_user_id, v_badge_id, 'code');
+  
+  -- Registra o resgate
+  INSERT INTO code_redemptions (id, code_id, user_id)
+  VALUES (gen_random_uuid(), v_code_id, p_user_id);
+
+  RETURN jsonb_build_object('success', true);
+END;
+$$ LANGUAGE plpgsql;

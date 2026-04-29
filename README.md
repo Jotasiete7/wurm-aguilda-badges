@@ -12,9 +12,10 @@ Um sistema web de **Identidade Social e Reputação** construído para ecossiste
 ## 🚀 Tecnologias
 
 - **Framework:** Next.js 15 (App Router)
-- **Estilização:** CSS Vanilla puro (Design System próprio `globals.css`)
-- **Autenticação:** NextAuth.js (Auth.js Beta) via interface **Discord**
-- **Banco de Dados:** SQLite (via biblioteca `better-sqlite3`) para um banco leve e relacional (`guilda.db`).
+- **Estilização:** CSS Vanilla puro (Design System próprio MMORPG no `globals.css`)
+- **Autenticação:** NextAuth.js (Auth.js Beta) via Discord OAuth2
+- **Banco de Dados:** Supabase (PostgreSQL) para escalabilidade e funções atômicas.
+- **Segurança**: Rate limiting por IP/User e transações SQL atômicas (RPC) para resgate.
 
 ## 🛠️ Como Iniciar (Setup de Desenvolvimento)
 
@@ -23,34 +24,40 @@ Um sistema web de **Identidade Social e Reputação** construído para ecossiste
    ```bash
    npm install
    ```
-3. Crie e configure o arquivo `.env.local`:
-   ```bash
-   cp .env.local.example .env.local
+3. Configure o arquivo `.env.local`:
+   ```env
+   # Auth.js
+   AUTH_URL=http://localhost:3000
+   AUTH_SECRET=sua_chave_gerada_npx_auth_secret
+   AUTH_DISCORD_ID=...
+   AUTH_DISCORD_SECRET=...
+
+   # Supabase
+   NEXT_PUBLIC_SUPABASE_URL=https://sua-url.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anon
+   SUPABASE_SERVICE_ROLE_KEY=sua-chave-service-role
    ```
-4. Configure as chaves do Discord dentro do novo arquivo:
-   - Crie uma aplicação no [Discord Dev Portal](https://discord.com/developers/applications).
-   - Obtenha o seu `Client ID` e o `Client Secret`.
-   - Na aba OAuth2 da Aplicação, configure o **Redirect URI** como: `http://localhost:3000/api/auth/callback/discord`.
-5. Gere ou preencha a chave `AUTH_SECRET` (pode rodar `npx auth secret` ou usar uma string randômica aleatória grande).
-6. Rode a aplicação em modo dev:
+4. Rode a aplicação em modo dev:
    ```bash
    npm run dev
    ```
 
-O banco SQLite (`guilda.db`) será auto-provisionado no primeiro boot caso as interfaces de banco de dados (`src/lib/db.ts`) sejam chamadas.
+## 🗄️ Estrutura do Banco de Dados (Supabase)
 
-## 🗄️ Estrutura do Banco de Dados Inicial
+O sistema utiliza o PostgreSQL via Supabase para gerenciar:
+- **users:** Perfil vinculado à ID do Discord (Snowflake).
+- **admins:** Cadastro de IDs do Discord com permissão de administrador.
+- **badges:** Catálogo de insígnias (ID, nome, descrição, imagem, raridade, tiragem).
+- **codes:** Sistema de distribuição com limites de uso, expiração e notas administrativas.
+- **user_badges:** Inventário real dos usuários (Registro de posse).
+- **security_logs**: Rastreio de tentativas de resgate para prevenção de brute force.
 
-O sistema utiliza o SQLite para suportar os seguintes modelos principais:
-- **users:** Perfil vinculado à ID do discord.
-- **admins:** Cadastro simples contendo os IDs do Discord que possuem liberação de ADM.
-- **badges:** Catálogo principal. Id, nome, imagem_url, raridade.
-- **codes:** Sistema de geração de distribuição. Traz código legível, vinculo com a badge referenciada e limites de uso.
-- **user_badges:** Tabela relacional pilar mantendo o registro de quem detém quais insígnias (O Inventário real do usuário).
+## ✨ Funcionalidades Adicionadas
 
-## ✅ Próximos Passos Priorizados
+- **Hall da Fama (`/ranking`)**: Ranking ponderado de colecionadores baseado na raridade das insígnias.
+- **Tooltips de Data**: Visualização da data de conquista ao passar o mouse sobre as badges.
+- **Segurança Atômica**: Proteção contra *Race Conditions* e *Brute Force* no resgate de códigos.
+- **Mobile First**: Interface 100% responsiva otimizada para dispositivos móveis.
 
-1. Estruturação da Autenticação via Discord (`Layout Configs`). ✔️ Em andamento
-2. Interface do Usuário (Logins, Listagem do Inventário `Wallet`). 
-3. Formulários de Admins Server Actions para CRUD em Códigos e Insígnias.
-4. Lógica de Resgate de Códigos transacional.
+---
+*Desenvolvido com foco em Identidade, Reputação e Pertencimento.*
