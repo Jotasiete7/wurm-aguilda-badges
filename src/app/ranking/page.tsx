@@ -10,82 +10,65 @@ export default async function RankingPage() {
   const { count: totalBadgesCount } = await db.from('badges').select('id', { count: 'exact', head: true });
   const totalBadges = totalBadgesCount || 1;
 
-  // 2. Fetch all user badges with their user and badge info
-  // This is often more reliable than a deeply nested user -> user_badges -> badges query
-  const { data: allUserBadges, error } = await db
-    .from('user_badges')
+  // 2. Fetch users and their badges (including badge rarity)
+  // We use the same pattern that works in the admin panel
+  const { data: usersWithBadges, error } = await db
+    .from('users')
     .select(`
-      user_id,
-      users:user_id (
-        username,
-        display_name,
-        avatar
-      ),
-      badges:badge_id (
-        rarity
+      id,
+      username,
+      display_name,
+      avatar,
+      user_badges (
+        badges (
+          rarity
+        )
       )
     `);
 
   if (error) {
-    console.error("Error fetching ranking data:", error.message, error.details, error.hint);
+    // If error is an object, stringify it to see details
+    console.error("Ranking Query Error:", JSON.stringify(error, null, 2));
     return (
       <div className={styles.wrapper}>
         <Header />
         <main className="container">
           <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-            Erro ao carregar o ranking. Por favor, tente novamente mais tarde.
+            Erro ao carregar o ranking (DB Error).
           </div>
         </main>
       </div>
     );
   }
 
-  // 3. Process data and group by user
-  const userGroups: Record<string, any> = {};
+  // 3. Process data and calculate scores
+  const ranking = (usersWithBadges || [])
+    .map((user: any) => {
+      const userBadges = user.user_badges || [];
+      if (userBadges.length === 0) return null;
 
-  (allUserBadges || []).forEach((ub: any) => {
-    const userId = ub.user_id;
-    if (!userGroups[userId]) {
-      const user = ub.users;
-      userGroups[userId] = {
-        id: userId,
-        name: user?.display_name || user?.username || 'Aventureiro',
-        avatar: user?.avatar,
-        badgeCount: 0,
-        totalScore: 0,
-        counts: {
-          Lendaria: 0,
-          Epica: 0,
-          Rara: 0,
-          Comum: 0,
-        },
+      const counts = { Lendaria: 0, Epica: 0, Rara: 0, Comum: 0 };
+      let totalScore = 0;
+
+      userBadges.forEach((ub: any) => {
+        const rarity = ub.badges?.rarity;
+        if (rarity === 'Lendaria') { counts.Lendaria++; totalScore += 4; }
+        else if (rarity === 'Epica') { counts.Epica++; totalScore += 3; }
+        else if (rarity === 'Rara') { counts.Rara++; totalScore += 2; }
+        else if (rarity === 'Comum') { counts.Comum++; totalScore += 1; }
+      });
+
+      return {
+        id: user.id,
+        name: user.display_name || user.username || 'Aventureiro',
+        avatar: user.avatar,
+        counts,
+        totalScore,
+        badgeCount: userBadges.length,
+        completion: Math.round((userBadges.length / totalBadges) * 100),
       };
-    }
-
-    const group = userGroups[userId];
-    const rarity = ub.badges?.rarity;
-    
-    group.badgeCount++;
-    if (rarity === 'Lendaria') {
-      group.counts.Lendaria++;
-      group.totalScore += 4;
-    } else if (rarity === 'Epica') {
-      group.counts.Epica++;
-      group.totalScore += 3;
-    } else if (rarity === 'Rara') {
-      group.counts.Rara++;
-      group.totalScore += 2;
-    } else {
-      group.counts.Comum++;
-      group.totalScore += 1;
-    }
-  });
-
-  const ranking = Object.values(userGroups)
-    .map((user: any) => ({
-      ...user,
-      completion: Math.round((user.badgeCount / totalBadges) * 100),
-    }))
+    })
+    .filter((u: any) => u !== null)
     .sort((a, b) => {
       if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
       return b.badgeCount - a.badgeCount;
