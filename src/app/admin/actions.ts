@@ -3,7 +3,7 @@
 import db from '@/lib/db';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
-import { isValidImageUrl, truncate } from '@/lib/utils';
+import { isValidImageUrl, truncate, generateSecureCode } from '@/lib/utils';
 
 const VALID_CATEGORIES = ['Evento', 'Ofício', 'Contribuição', 'Combate', 'Território', 'Segredo'];
 const VALID_RARITIES = ['Comum', 'Rara', 'Epica', 'Lendaria'];

@@ -3,10 +3,17 @@
 import db from '@/lib/db';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { checkRateLimit, logRedemptionAttempt } from '@/lib/security';
 
 export async function redeemCode(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Usuário não autenticado." };
+
+  // 1. Rate Limiting Check
+  const { allowed, remaining } = await checkRateLimit(session.user.id);
+  if (!allowed) {
+    return { success: false, error: "Muitas tentativas. Aguarde um minuto e tente novamente." };
+  }
 
   const rawCode = formData.get('code') as string;
   if (!rawCode?.trim()) return { success: false, error: "Código vazio." };
@@ -14,32 +21,32 @@ export async function redeemCode(formData: FormData) {
   const codeStr = rawCode.trim().toUpperCase();
 
   try {
-    // 1. Validate code exists and is not expired
-    const { data: codeRecord } = await db.from('codes').select('*').eq('code', codeStr).single();
+    // 2. Atomic Redemption via Supabase RPC
+    // Isso resolve a Race Condition e faz todas as verificações em uma única transação
+    const { data, error: rpcError } = await db.rpc('redeem_code_atomic', {
+      p_code: codeStr,
+      p_user_id: session.user.id
+    });
 
-    if (!codeRecord) throw new Error("Código inválido ou inexistente.");
-    if (codeRecord.expires_at && new Date(codeRecord.expires_at) < new Date()) {
-      throw new Error("Código expirado.");
+    if (rpcError) {
+      console.error("RPC Error:", rpcError);
+      throw new Error("Erro interno ao processar resgate.");
     }
 
-    // 2. Check uses limit
-    if (codeRecord.max_uses !== null && codeRecord.used_count >= codeRecord.max_uses) {
-      throw new Error("Este código já atingiu seu limite máximo de usos.");
+    const result = data as { success: boolean; error?: string };
+
+    // 3. Log attempt
+    await logRedemptionAttempt(session.user.id, codeStr, result.success);
+
+    if (!result.success) {
+      // Mensagens genéricas para evitar vazamento de informações para atacantes
+      if (result.error === 'OWNED') throw new Error("Você já possui esta Insígnia.");
+      if (result.error === 'INVALID' || result.error === 'EXPIRED' || result.error === 'EXHAUSTED') {
+        throw new Error("Código inválido, expirado ou esgotado.");
+      }
+      throw new Error("Não foi possível resgatar este código.");
     }
 
-    // 3. Prevent duplicate badge ownership
-    const { data: hasBadge } = await db.from('user_badges').select('id').eq('user_id', session.user.id).eq('badge_id', codeRecord.badge_id).single();
-
-    if (hasBadge) throw new Error("Você já possui esta Insígnia em sua mochila.");
-
-    // 4. Insert badge ownership
-    await db.from('user_badges').insert({ id: crypto.randomUUID(), user_id: session.user.id, badge_id: codeRecord.badge_id, source: 'code' });
-
-    // 5. Record redemption
-    await db.from('code_redemptions').insert({ id: crypto.randomUUID(), code_id: codeRecord.id, user_id: session.user.id });
-
-    // 6. Increment use count
-    await db.from('codes').update({ used_count: codeRecord.used_count + 1 }).eq('id', codeRecord.id);
     revalidatePath('/wallet');
     return { success: true, message: "Insígnia resgatada com sucesso! ✨" };
 

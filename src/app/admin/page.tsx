@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import db from '@/lib/db';
 import Header from '@/components/Header';
+import { generateSecureCode } from '@/lib/utils';
 import styles from './admin.module.css';
 import AdminForm from './AdminForm';
 import ImagePreviewInput from './ImagePreviewInput';
@@ -174,9 +175,11 @@ export default async function AdminPage() {
                 </select>
               </div>
               <div className={styles.formGroup}>
-                <label>Código (Ex: FESTA-2026)</label>
+                <label>Código de Resgate (Sugerido)</label>
                 <input type="text" name="code" className="input" required minLength={3} maxLength={40}
+                  defaultValue={generateSecureCode(12)}
                   style={{ fontFamily: 'monospace', letterSpacing: 1 }} />
+                <p className={styles.hint}>Dica: Use o código seguro gerado acima ou defina um padrão difícil de adivinhar.</p>
               </div>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>

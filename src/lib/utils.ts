@@ -22,3 +22,15 @@ export function isValidImageUrl(url: string): boolean {
 export function truncate(str: string, max: number): string {
   return str.length > max ? str.slice(0, max) : str;
 }
+
+/** Gera um código aleatório de alta entropia para resgate */
+export function generateSecureCode(length: number = 10): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Evita 0, O, 1, I por clareza
+  let result = '';
+  const randomValues = new Uint32Array(length);
+  crypto.getRandomValues(randomValues);
+  for (let i = 0; i < length; i++) {
+    result += chars[randomValues[i] % chars.length];
+  }
+  return result;
+}
