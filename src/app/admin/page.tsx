@@ -69,18 +69,27 @@ export default async function AdminPage() {
           ) : (
             <div className={styles.statsGrid}>
               {badgeStats.map((b: any) => (
-                <div key={b.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', gap: '1rem' }}>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 600 }}>{b.name}</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{b.rarity}</p>
+                <div key={b.id} className={styles.statsRow}>
+                  <div className={styles.statsBadgeInfo}>
+                    <span className={styles.statsBadgeName}>{b.name}</span>
+                    <span className={styles.statsBadgeRarity}>{b.rarity}</span>
+                  </div>
+                  <div className={styles.statsCount}>
+                    {b.total} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>resgates</span>
+                  </div>
+                  <div className={styles.statsSupply}>
+                    <span className={styles.statsSupplyText}>Tiragem: {b.max_supply ? b.max_supply : '∞'}</span>
+                    {b.max_supply && (
+                      <div style={{ width: '100%', height: '3px', backgroundColor: 'var(--bg-primary)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', backgroundColor: 'var(--accent)', width: `${Math.min((b.total / b.max_supply) * 100, 100)}%` }}></div>
+                      </div>
+                    )}
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{b.total}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>resgates {b.max_supply ? `/ ${b.max_supply}` : '/ ∞'}</p>
+                    <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>
+                      ✏ Editar
+                    </a>
                   </div>
-                  <a href={`/admin/badges/${b.id}`} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', flexShrink: 0 }}>
-                    ✏ Editar
-                  </a>
                 </div>
               ))}
             </div>
@@ -201,9 +210,15 @@ export default async function AdminPage() {
                 </select>
               </div>
               <div className={styles.formGroup}>
-                <label>Discord ID do Membro</label>
-                <input type="text" name="discord_id" className="input" required
-                  placeholder="O membro precisa ter feito login pelo menos uma vez" />
+                <label>Membro</label>
+                <select name="discord_id" className="input" required>
+                  <option value="">Selecione um membro...</option>
+                  {allMembers.map((m: any) => (
+                    <option key={m.discord_id} value={m.discord_id}>
+                      {m.display_name ? `${m.display_name} (@${m.username})` : m.username}
+                    </option>
+                  ))}
+                </select>
               </div>
             </AdminForm>
           </div>

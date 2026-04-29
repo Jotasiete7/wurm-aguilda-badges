@@ -34,9 +34,60 @@
 }
 
 .statsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.statsRow {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr 120px 150px 100px;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.statsRow:last-child { border-bottom: none; }
+.statsRow:hover { background-color: rgba(255,255,255,0.02); }
+
+.statsBadgeInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statsBadgeName {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.statsBadgeRarity {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statsCount {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.statsSupply {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statsSupplyText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .rankingList {
