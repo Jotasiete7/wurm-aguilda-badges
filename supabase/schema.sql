@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   id TEXT PRIMARY KEY,
   discord_id TEXT UNIQUE NOT NULL,
   username TEXT NOT NULL,
+  display_name TEXT,
   avatar TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -116,3 +117,12 @@ BEGIN
   RETURN jsonb_build_object('success', true);
 END;
 $$ LANGUAGE plpgsql;
+
+-- Security Settings
+ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admins DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.badges DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.codes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_badges DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.code_redemptions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.security_logs DISABLE ROW LEVEL SECURITY;
