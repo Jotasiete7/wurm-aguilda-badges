@@ -16,9 +16,20 @@ interface Props {
   total: number;
 }
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function PlayerProfile({ user, owned, total }: Props) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const progress = total > 0 ? Math.round((owned.length / total) * 100) : 0;
+
+  const RARITIES = ['Comum', 'Rara', 'Epica', 'Lendaria'];
+  const RARITY_LABELS: Record<string, string> = {
+    Comum: t('Common', 'Comuns'), 
+    Rara: t('Rare', 'Raras'), 
+    Epica: t('Epic', 'Épicas'), 
+    Lendaria: t('Legendary', 'Lendárias'),
+  };
 
   const rarityCounts = RARITIES.reduce((acc, r) => {
     acc[r] = owned.filter(b =>
@@ -36,7 +47,7 @@ export default function PlayerProfile({ user, owned, total }: Props) {
       setTimeout(() => setCopied(false), 2500);
     } catch {
       // fallback for browsers without clipboard API
-      window.prompt('Copie o link da sua coleção:', url);
+      window.prompt(t('Copy your collection link:', 'Copie o link da sua coleção:'), url);
     }
   };
 
@@ -48,9 +59,9 @@ export default function PlayerProfile({ user, owned, total }: Props) {
       <div className={styles.left}>
         <div className={styles.avatarWrapper}>
           {user.image ? (
-            <img src={user.image} alt={user.name} className={styles.avatar} />
+            <img src={user.image} alt={typeof user.name === 'string' ? user.name : 'User'} className={styles.avatar} />
           ) : (
-            <div className={styles.avatarFallback}>{user.name[0]}</div>
+            <div className={styles.avatarFallback}>{typeof user.name === 'string' ? user.name[0] : 'U'}</div>
           )}
         </div>
         <div className={styles.userInfo}>
@@ -70,7 +81,7 @@ export default function PlayerProfile({ user, owned, total }: Props) {
 
       <div className={styles.right}>
         <div className={styles.progressLabel}>
-          <span className={styles.progressText}>Coleção</span>
+          <span className={styles.progressText}>{t('Collection', 'Coleção')}</span>
           <span className={styles.progressCount}>{owned.length} / {total}</span>
         </div>
         <div className={styles.progressTrack}>
@@ -80,21 +91,21 @@ export default function PlayerProfile({ user, owned, total }: Props) {
           />
         </div>
         <p className={styles.progressHint}>
-          {progress}% das insígnias do ecossistema coletadas
+          {progress}% {t('of ecosystem badges collected', 'das insígnias do ecossistema coletadas')}
         </p>
 
         {/* Share button */}
         <button
           onClick={handleShare}
           className={styles.shareBtn}
-          title="Copiar link da sua coleção"
+          title={t('Copy link to your collection', 'Copiar link da sua coleção')}
         >
           {copied ? (
             <>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              Link copiado!
+              {t('Link copied!', 'Link copiado!')}
             </>
           ) : (
             <>
@@ -103,7 +114,7 @@ export default function PlayerProfile({ user, owned, total }: Props) {
                 <polyline points="16 6 12 2 8 6" />
                 <line x1="12" y1="2" x2="12" y2="15" />
               </svg>
-              Compartilhar coleção
+              {t('Share collection', 'Compartilhar coleção')}
             </>
           )}
         </button>

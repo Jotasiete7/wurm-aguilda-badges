@@ -7,6 +7,7 @@ import PlayerProfile from './PlayerProfile';
 import WalletGrid from './WalletGrid';
 import RedeemForm from './RedeemForm';
 import styles from './wallet.module.css';
+import { T } from '@/lib/i18n';
 
 export interface BadgeEntry {
   id: string;
@@ -33,13 +34,11 @@ export default async function WalletPage() {
   const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', userId);
 
   // To calculate the "Serial Number" (rank) for each badge the user owns
-  // We fetch the claim counts per badge up to the user's claim date
   const badges: BadgeEntry[] = await Promise.all((badgesRaw || []).map(async (b: any) => {
     const ub = userBadgesRaw?.find((u: any) => u.badge_id === b.id);
     
     let serialNumber = undefined;
     if (ub) {
-      // Count how many people claimed this badge on or before the user did
       const { count } = await db
         .from('user_badges')
         .select('id', { count: 'exact', head: true })
@@ -66,11 +65,10 @@ export default async function WalletPage() {
   const owned = sortedBadges.filter(b => b.owned);
   const total = sortedBadges.length;
 
-  // Fetch display_name from DB (may differ from Discord username)
   const { data: dbUser } = await db.from('users').select('display_name, username').eq('id', userId).single();
 
   const user = {
-    name: dbUser?.display_name || dbUser?.username || session.user.name || 'Aventureiro',
+    name: dbUser?.display_name || dbUser?.username || session.user.name || <T en="Adventurer" pt="Aventureiro" />,
     discordName: session.user.name || '',
     image: session.user.image || null,
     id: userId,
@@ -84,9 +82,11 @@ export default async function WalletPage() {
 
         <div className={styles.walletHeader}>
           <div>
-            <h1 className={styles.title}>Meu <strong>Inventário</strong></h1>
+            <h1 className={styles.title}>
+              <T en="My" pt="Meu" /> <strong><T en="Inventory" pt="Inventário" /></strong>
+            </h1>
             <p className={styles.subtitle}>
-              {owned.length} {owned.length === 1 ? 'insígnia coletada' : 'insígnias coletadas'}
+              {owned.length} <T en={owned.length === 1 ? 'badge collected' : 'badges collected'} pt={owned.length === 1 ? 'insígnia coletada' : 'insígnias coletadas'} />
             </p>
           </div>
           <RedeemForm />

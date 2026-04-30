@@ -14,9 +14,21 @@ interface Props {
   badges: BadgeEntry[];
 }
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function WalletGrid({ badges }: Props) {
+  const { t } = useLanguage();
   const [rarityFilter, setRarityFilter] = useState<string>('Todas');
   const [showGhosts, setShowGhosts] = useState(true);
+
+  const RARITIES = ['Todas', 'Comum', 'Rara', 'Epica', 'Lendaria'] as const;
+  const RARITY_LABELS: Record<string, string> = {
+    Todas: t('All', 'Todas'), 
+    Comum: t('Common', 'Comum'), 
+    Rara: t('Rare', 'Rara'), 
+    Epica: t('Epic', 'Épica'), 
+    Lendaria: t('Legendary', 'Lendária'),
+  };
 
   const filtered = useMemo(() => {
     return badges.filter(b => {
@@ -34,8 +46,8 @@ export default function WalletGrid({ badges }: Props) {
     return (
       <div className={styles.empty}>
         <span className={styles.emptyIcon}>🎒</span>
-        <h2>Nenhuma insígnia cadastrada</h2>
-        <p>Aguarde o Mestre da Guilda forjar as primeiras insígnias.</p>
+        <h2>{t('No badges registered', 'Nenhuma insígnia cadastrada')}</h2>
+        <p>{t('Wait for the Guild Master to forge the first badges.', 'Aguarde o Mestre da Guilda forjar as primeiras insígnias.')}</p>
       </div>
     );
   }
@@ -59,14 +71,14 @@ export default function WalletGrid({ badges }: Props) {
           onClick={() => setShowGhosts(v => !v)}
           className={`${styles.ghostToggle} ${showGhosts ? styles.ghostToggleActive : ''}`}
         >
-          {showGhosts ? '🔒 Ocultar bloqueadas' : '🔒 Mostrar bloqueadas'}
+          {showGhosts ? t('🔒 Hide locked', '🔒 Ocultar bloqueadas') : t('🔒 Show locked', '🔒 Mostrar bloqueadas')}
         </button>
       </div>
 
       {/* Count line */}
       <p className={styles.countLine}>
-        {ownedCount > 0 && <span>{ownedCount} coletada{ownedCount !== 1 ? 's' : ''}</span>}
-        {ghostCount > 0 && showGhosts && <span className={styles.ghostCount}> · {ghostCount} bloqueada{ghostCount !== 1 ? 's' : ''}</span>}
+        {ownedCount > 0 && <span>{ownedCount} {ownedCount === 1 ? t('collected', 'coletada') : t('collected', 'coletadas')}</span>}
+        {ghostCount > 0 && showGhosts && <span className={styles.ghostCount}> · {ghostCount} {ghostCount === 1 ? t('locked', 'bloqueada') : t('locked', 'bloqueadas')}</span>}
       </p>
 
       {/* Grid */}

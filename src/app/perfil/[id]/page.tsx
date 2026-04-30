@@ -57,6 +57,10 @@ export default async function PublicProfilePage({ params }: Props) {
     id: user.id,
   };
 
+import { T } from '@/lib/i18n';
+
+// ... (component start)
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-main)', display: 'flex', flexDirection: 'column' }}>
       <Header />
@@ -66,10 +70,10 @@ export default async function PublicProfilePage({ params }: Props) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '3rem' }}>
           <div>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 600, color: 'var(--text-main)' }}>
-              Coleção de <strong>{user.username}</strong>
+              <T en="Collection of" pt="Coleção de" /> <strong>{user.username}</strong>
             </h1>
             <p style={{ color: 'var(--text-muted)' }}>
-              {badges.length} {badges.length === 1 ? 'insígnia coletada' : 'insígnias coletadas'}
+              {badges.length} <T en={badges.length === 1 ? 'badge collected' : 'badges collected'} pt={badges.length === 1 ? 'insígnia coletada' : 'insígnias coletadas'} />
             </p>
           </div>
         </div>

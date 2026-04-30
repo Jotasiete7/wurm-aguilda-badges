@@ -3,6 +3,8 @@ import { auth, signIn } from '@/auth';
 import { redirect } from 'next/navigation';
 import styles from './page.module.css';
 
+import { T } from '@/lib/i18n';
+
 export default async function Home() {
   const session = await auth();
   if (session?.user) redirect('/wallet');
@@ -68,13 +70,18 @@ export default async function Home() {
 
         {/* Main subtitle */}
         <p className={styles.subtitle}>
-          Identidade, reputação e pertencimento —<br />
-          em forma de emblemas.
+          <T 
+            en="Identity, reputation and belonging — in the form of emblems." 
+            pt="Identidade, reputação e pertencimento — em forma de emblemas." 
+          />
         </p>
 
         {/* Supporting line */}
         <p className={styles.supportText}>
-          Conecte-se com o Discord para acessar sua carteira.
+          <T 
+            en="Connect with Discord to access your wallet." 
+            pt="Conecte-se com o Discord para acessar sua carteira." 
+          />
         </p>
 
         {/* CTA Button */}
@@ -87,7 +94,7 @@ export default async function Home() {
               <svg className={styles.discordIcon} viewBox="0 0 127.14 96.36" fill="currentColor">
                 <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a67.55,67.55,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.12,53,91.08,65.69,84.69,65.69Z" />
               </svg>
-              Entrar com Discord
+              <T en="Sign in with Discord" pt="Entrar com Discord" />
             </button>
           </form>
 
@@ -97,7 +104,7 @@ export default async function Home() {
               await signIn("teste_local")
             }}>
               <button type="submit" className={styles.devBtn}>
-                🧪 Testar Localmente
+                <T en="🧪 Test Locally" pt="🧪 Testar Localmente" />
               </button>
             </form>
           )}
@@ -106,9 +113,15 @@ export default async function Home() {
         {/* LGPD Privacy Notice */}
         <div className={styles.privacyNotice} role="note" aria-label="Aviso de privacidade">
           <p>
-            <span>Ao entrar, coletamos apenas seu nome de usuário, avatar e ID público do Discord</span>{' '}para identificá-lo no sistema de emblemas da Guilda.
-            Os dados não são compartilhados com terceiros e podem ser removidos mediante solicitação,
-            em conformidade com a <span>LGPD (Lei nº 13.709/2018)</span>.
+            <T 
+              en="By logging in, we only collect your Discord username, avatar, and public ID" 
+              pt="Ao entrar, coletamos apenas seu nome de usuário, avatar e ID público do Discord" 
+            />{' '}
+            <T 
+              en="to identify you in the Guild's badge system. Data is not shared with third parties and can be removed upon request, in compliance with" 
+              pt="para identificá-lo no sistema de emblemas da Guilda. Os dados não são compartilhados com terceiros e podem ser removidos mediante solicitação, em conformidade com a" 
+            />{' '}
+            <span>LGPD (Law No. 13.709/2018)</span>.
           </p>
         </div>
 
