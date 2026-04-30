@@ -4,17 +4,11 @@ import React, { useState, useMemo } from 'react';
 import BadgeCard from '@/components/BadgeCard';
 import styles from './WalletGrid.module.css';
 import type { BadgeEntry } from './page';
-
-const RARITIES = ['Todas', 'Comum', 'Rara', 'Epica', 'Lendaria'] as const;
-const RARITY_LABELS: Record<string, string> = {
-  Todas: 'Todas', Comum: 'Comum', Rara: 'Rara', Epica: 'Épica', Lendaria: 'Lendária',
-};
+import { useLanguage } from '@/lib/i18n';
 
 interface Props {
   badges: BadgeEntry[];
 }
-
-import { useLanguage } from '@/lib/i18n';
 
 export default function WalletGrid({ badges }: Props) {
   const { t } = useLanguage();

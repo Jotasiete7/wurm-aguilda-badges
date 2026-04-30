@@ -3,20 +3,13 @@
 import React, { useState } from 'react';
 import styles from './PlayerProfile.module.css';
 import type { BadgeEntry } from './page';
-
-const RARITIES = ['Comum', 'Rara', 'Epica', 'Lendaria'];
-const RARITY_LABELS: Record<string, string> = {
-  Comum: 'Comuns', Rara: 'Raras', Epica: 'Épicas', Lendaria: 'Lendárias',
-};
-
+import { useLanguage } from '@/lib/i18n';
 
 interface Props {
   user: { name: string; discordName?: string; image: string | null; id: string };
   owned: BadgeEntry[];
   total: number;
 }
-
-import { useLanguage } from '@/lib/i18n';
 
 export default function PlayerProfile({ user, owned, total }: Props) {
   const { t } = useLanguage();

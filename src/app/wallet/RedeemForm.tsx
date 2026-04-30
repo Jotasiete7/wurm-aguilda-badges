@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { redeemCode } from './actions';
 import styles from './wallet.module.css';
-
 import { useLanguage } from '@/lib/i18n';
 
 export default function RedeemForm() {

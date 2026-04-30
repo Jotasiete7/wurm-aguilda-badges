@@ -5,6 +5,7 @@ import PlayerProfile from '@/app/wallet/PlayerProfile';
 import WalletGrid from '@/app/wallet/WalletGrid';
 import { notFound } from 'next/navigation';
 import type { BadgeEntry } from '@/app/wallet/page';
+import { T } from '@/lib/i18n';
 
 interface Props {
   params: Promise<{
@@ -56,10 +57,6 @@ export default async function PublicProfilePage({ params }: Props) {
     image: user.avatar,
     id: user.id,
   };
-
-import { T } from '@/lib/i18n';
-
-// ... (component start)
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-main)', display: 'flex', flexDirection: 'column' }}>
