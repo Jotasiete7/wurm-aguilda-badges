@@ -8,10 +8,16 @@ export const metadata: Metadata = {
   description: 'Sua carteira de identidade e reputação no Ecossistema de Wurm Online.',
 }
 
+import { LanguageProvider } from '@/lib/i18n'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body>{children}</body>
+    <html>
+      <body>
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   )
 }

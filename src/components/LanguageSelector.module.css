@@ -1,0 +1,40 @@
+.selectorContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-family: var(--font-sans);
+}
+
+.langBtn {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.langBtn:hover {
+  color: var(--text-main);
+}
+
+.langBtnActive {
+  background-color: rgba(212, 180, 131, 0.1);
+  color: var(--accent);
+}
+
+.divider {
+  width: 1px;
+  height: 10px;
+  background-color: var(--border-color);
+  opacity: 0.5;
+}

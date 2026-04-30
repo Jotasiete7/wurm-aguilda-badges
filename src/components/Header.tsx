@@ -4,6 +4,8 @@ import styles from './Header.module.css';
 import { auth, signOut } from '@/auth';
 import EcosystemDropdown from './EcosystemDropdown';
 import db from '@/lib/db';
+import { T } from '@/lib/i18n';
+import LanguageSelector from './LanguageSelector';
 
 export default async function Header() {
   const session = await auth();
@@ -27,35 +29,40 @@ export default async function Header() {
       <nav className={styles.nav}>
         {session?.user && (
           <>
-            <Link href="/wallet" className={styles.navLink}>Inventário</Link>
-            <Link href="/ranking" className={styles.navLink}>Hall da Fama</Link>
+            <Link href="/wallet" className={styles.navLink}><T en="Inventory" pt="Inventário" /></Link>
+            <Link href="/ranking" className={styles.navLink}><T en="Hall of Fame" pt="Hall da Fama" /></Link>
           </>
         )}
         {isAdmin && (
           <Link href="/admin" className={styles.navLink + ' ' + styles.navLinkAdmin}>
-            ⚔ Painel da Guilda
+            <T en="⚔ Guild Panel" pt="⚔ Painel da Guilda" />
           </Link>
         )}
       </nav>
 
-      {session?.user && (
-        <div className={styles.userSection}>
-          <div className={styles.userInfo}>
-            <span className={styles.username}>{session.user.name}</span>
-            {session.user.image ? (
-              <img src={session.user.image} alt={session.user.name || "Avatar"} className={styles.avatar} />
-            ) : (
-              <div className={styles.avatarPlaceholder} />
-            )}
-          </div>
-          <form action={async () => {
-              "use server"
-              await signOut({ redirectTo: '/' })
-          }}>
-            <button type="submit" className="btn" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem'}}>Desconectar</button>
-          </form>
-        </div>
-      )}
+      <div className={styles.userSection}>
+        <LanguageSelector />
+        {session?.user && (
+          <>
+            <div className={styles.userInfo}>
+              <span className={styles.username}>{session.user.name}</span>
+              {session.user.image ? (
+                <img src={session.user.image} alt={session.user.name || "Avatar"} className={styles.avatar} />
+              ) : (
+                <div className={styles.avatarPlaceholder} />
+              )}
+            </div>
+            <form action={async () => {
+                "use server"
+                await signOut({ redirectTo: '/' })
+            }}>
+              <button type="submit" className="btn" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem'}}>
+                <T en="Logout" pt="Desconectar" />
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </header>
   );
 }
