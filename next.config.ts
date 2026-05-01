@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@ecossistema-guilda': path.resolve(__dirname, './ecossistema-guilda'),
+      '@ecossistema-guilda': path.resolve(__dirname, './src/ecossistema-guilda'),
       'lucide-react': path.resolve(__dirname, 'node_modules/lucide-react'),
     };
     return config;
