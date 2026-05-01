@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@ecossistema-guilda/*": ["./ecossistema-guilda/*"]
+      "@ecossistema-guilda/*": ["./src/ecossistema-guilda/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
