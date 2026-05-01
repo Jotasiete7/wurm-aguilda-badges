@@ -12,13 +12,16 @@ export const metadata: Metadata = {
 }
 
 import { LanguageProvider } from '@/lib/i18n'
+import { LayoutBase } from '@antigravity/layout/LayoutBase'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html>
       <body>
         <LanguageProvider>
-          {children}
+          <LayoutBase>
+            {children}
+          </LayoutBase>
         </LanguageProvider>
       </body>
     </html>
