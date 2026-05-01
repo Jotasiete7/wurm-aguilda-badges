@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Header } from '@ecossistema-guilda/layout/Header';
-import { LanguageSwitch } from '@ecossistema-guilda/modules/LanguageSwitch';
+import { Header } from '../../ecossistema-guilda/layout/Header';
+import { LanguageSwitch } from '../../ecossistema-guilda/modules/LanguageSwitch';
 import { useLanguage, T } from '@/lib/i18n';
 import Link from 'next/link';
 
@@ -69,7 +69,7 @@ export const HeaderBridge: React.FC<HeaderBridgeProps> = ({ session, isAdmin, lo
                 <LanguageSwitch 
                     lang={lang} 
                     onLanguageChange={setLang} 
-                    styles={require('@ecossistema-guilda/layout/Header.module.css')}
+                    styles={require('../../ecossistema-guilda/layout/Header.module.css')}
                 />
             }
         />
