@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 import { LanguageProvider } from '@/lib/i18n'
-import { LayoutBase } from '@antigravity/layout/LayoutBase'
+import { LayoutBase } from '@ecossistema-guilda/layout/LayoutBase'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
