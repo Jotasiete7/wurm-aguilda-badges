@@ -5,6 +5,8 @@ import { Header } from '@ecossistema-guilda/layout/Header';
 import { LanguageSwitch } from '@ecossistema-guilda/modules/LanguageSwitch';
 import { useLanguage, T } from '@/lib/i18n';
 import Link from 'next/link';
+import localHeaderStyles from './Header.module.css';
+import agHeaderStyles from '@ecossistema-guilda/layout/Header.module.css';
 
 interface HeaderBridgeProps {
     session: any;
@@ -50,7 +52,7 @@ export const HeaderBridge: React.FC<HeaderBridgeProps> = ({ session, isAdmin, lo
         <LanguageSwitch 
             lang={lang} 
             onLanguageChange={setLang} 
-            styles={require('./Header.module.css')} // We will use the bridge to pass styles if needed, but actually the Header has its own styles
+            styles={localHeaderStyles} // We will use the bridge to pass styles if needed, but actually the Header has its own styles
         />
     );
 
@@ -69,7 +71,7 @@ export const HeaderBridge: React.FC<HeaderBridgeProps> = ({ session, isAdmin, lo
                 <LanguageSwitch 
                     lang={lang} 
                     onLanguageChange={setLang} 
-                    styles={require('@ecossistema-guilda/layout/Header.module.css')}
+                    styles={agHeaderStyles}
                 />
             }
         />
