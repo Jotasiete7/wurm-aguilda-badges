@@ -69,11 +69,15 @@ CREATE TABLE IF NOT EXISTS public.security_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Atomic Redemption Function
+-- Atomic Redemption Function (Hardened)
 CREATE OR REPLACE FUNCTION redeem_code_atomic(
   p_code TEXT,
   p_user_id TEXT
-) RETURNS JSONB AS $$
+) RETURNS JSONB 
+LANGUAGE plpgsql
+SECURITY DEFINER -- Required to update private 'codes' table
+SET search_path = public
+AS $$
 DECLARE
   v_code_id TEXT;
   v_badge_id TEXT;
@@ -81,7 +85,13 @@ DECLARE
   v_used_count INT;
   v_expires_at TIMESTAMP WITH TIME ZONE;
 BEGIN
-  -- Seleciona e bloqueia a linha para evitar concorrência (FOR UPDATE)
+  -- 1. Security Check: Ensure caller is redeeming for themselves
+  -- auth.uid() returns uuid, p_user_id is text in this schema
+  IF auth.uid()::text IS DISTINCT FROM p_user_id THEN
+    RETURN jsonb_build_object('success', false, 'error', 'UNAUTHORIZED');
+  END IF;
+
+  -- 2. Select and lock the code row
   SELECT id, badge_id, max_uses, used_count, expires_at 
   INTO v_code_id, v_badge_id, v_max_uses, v_used_count, v_expires_at
   FROM codes WHERE code = p_code FOR UPDATE;
@@ -98,31 +108,55 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'EXHAUSTED');
   END IF;
 
-  -- Verifica se o usuário já tem a insígnia
+  -- 3. Check if user already owns the badge
   IF EXISTS (SELECT 1 FROM user_badges WHERE user_id = p_user_id AND badge_id = v_badge_id) THEN
     RETURN jsonb_build_object('success', false, 'error', 'OWNED');
   END IF;
 
-  -- Incremento Atômico
+  -- 4. Atomic Update and Grant
   UPDATE codes SET used_count = used_count + 1 WHERE id = v_code_id;
 
-  -- Insere a posse da insígnia
   INSERT INTO user_badges (id, user_id, badge_id, source) 
   VALUES (gen_random_uuid()::text, p_user_id, v_badge_id, 'code');
   
-  -- Registra o resgate
   INSERT INTO code_redemptions (id, code_id, user_id)
   VALUES (gen_random_uuid()::text, v_code_id, p_user_id);
 
   RETURN jsonb_build_object('success', true);
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Security Settings
-ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.admins DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.badges DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.codes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_badges DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.code_redemptions DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.security_logs DISABLE ROW LEVEL SECURITY;
+-- Security Settings (RLS Enabled)
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.codes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.code_redemptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.security_logs ENABLE ROW LEVEL SECURITY;
+
+-- POLICIES
+
+-- Badges: Public Read
+CREATE POLICY "Badges are viewable by everyone" ON public.badges FOR SELECT USING (true);
+
+-- Users: Public Read, Self Update
+CREATE POLICY "Users are viewable by everyone" ON public.users FOR SELECT USING (true);
+CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid()::text = id);
+CREATE POLICY "Users can insert own profile" ON public.users FOR INSERT WITH CHECK (auth.uid()::text = id);
+
+-- User Badges: Public Read
+CREATE POLICY "User badges are viewable by everyone" ON public.user_badges FOR SELECT USING (true);
+
+-- Admins: Public Read
+CREATE POLICY "Admins are viewable by everyone" ON public.admins FOR SELECT USING (true);
+
+-- Codes: Private (No public read, managed via RPC)
+-- No policies = access denied for non-service-role users
+
+-- Redemptions: Private
+-- No policies = access denied
+
+-- Logs: Private
+-- No policies = access denied
+
