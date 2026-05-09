@@ -8,7 +8,7 @@ import styles from './admin.module.css';
 import AdminForm from './AdminForm';
 import ImagePreviewInput from './ImagePreviewInput';
 import MembersTab from './MembersTab';
-import { createBadge, createCode, assignBadgeManually, revokeBadgeManually } from './actions';
+import { createBadge, createCode, assignBadgeManually, revokeBadgeManually, manageBadgeManually } from './actions';
 
 export default async function AdminPage() {
   const session = await auth();
@@ -199,46 +199,27 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {/* ── ATRIBUIÇÃO MANUAL ── */}
+        {/* ── GERENCIAMENTO MANUAL DE INSÍGNIAS ── */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🎖 Atribuir Manualmente</h2>
+          <h2 className={styles.sectionTitle}>🎖 Gerenciar Insígnia do Membro</h2>
           <div className="card" style={{ maxWidth: 640 }}>
-            <AdminForm action={assignBadgeManually} submitLabel="Conceder Insígnia" variant="accent">
-              <div className={styles.formGroup}>
-                <label>Insígnia</label>
-                <select name="badge_id" className="input" required>
-                  {badges?.map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Membro</label>
-                <select name="discord_id" className="input" required>
-                  <option value="">Selecione um membro...</option>
-                  {allMembers.map((m: any) => (
-                    <option key={m.discord_id} value={m.discord_id}>
-                      {m.display_name ? `${m.display_name} (@${m.username})` : m.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </AdminForm>
-          </div>
-        </section>
-
-        {/* ── REMOÇÃO MANUAL ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🗑 Remover Manualmente</h2>
-          <div className="card" style={{ maxWidth: 640 }}>
-            <AdminForm action={revokeBadgeManually} submitLabel="Remover Insígnia" variant="danger">
-              <div className={styles.formGroup}>
-                <label>Insígnia a Remover</label>
-                <select name="badge_id" className="input" required>
-                  {badges?.map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
+            <AdminForm action={manageBadgeManually} submitLabel="Executar Ação" variant="accent">
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Ação</label>
+                  <select name="operation" className="input" required>
+                    <option value="grant">➕ Conceder Insígnia</option>
+                    <option value="revoke">🗑 Remover Insígnia</option>
+                  </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Insígnia</label>
+                  <select name="badge_id" className="input" required>
+                    {badges?.map((b: any) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className={styles.formGroup}>
                 <label>Membro</label>

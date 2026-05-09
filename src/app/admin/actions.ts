@@ -143,6 +143,13 @@ export async function revokeBadgeManually(formData: FormData) {
   return { success: true, message: 'Insígnia removida com sucesso!' };
 }
 
+export async function manageBadgeManually(formData: FormData) {
+  const operation = formData.get('operation') as string;
+  if (operation === 'grant') return assignBadgeManually(formData);
+  if (operation === 'revoke') return revokeBadgeManually(formData);
+  return { success: false, message: 'Operação inválida.' };
+}
+
 export async function updateDisplayName(formData: FormData) {
   await checkAdmin();
 
