@@ -109,6 +109,9 @@
 .cardWrapper {
   animation: fadeInDelay 0.5s ease backwards;
   animation-delay: calc(var(--delay) * 40ms);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes fadeInDelay {

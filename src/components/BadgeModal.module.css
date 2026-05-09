@@ -8,6 +8,9 @@
   position: relative;
   cursor: pointer;
   outline: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 /* ── Tooltip ── */
@@ -102,7 +105,13 @@
 
 .badgeCard:hover .badgeImage { transform: scale(1.08); }
 
-.badgeInfo { padding: 1rem 1.125rem; }
+.badgeInfo { 
+  padding: 1rem 1.125rem; 
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
 
 .badgeName {
   font-family: var(--font-serif);
