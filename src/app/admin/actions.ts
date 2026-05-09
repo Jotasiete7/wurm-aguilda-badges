@@ -121,6 +121,28 @@ export async function assignBadgeManually(formData: FormData) {
   return { success: true, message: 'Insígnia concedida com sucesso!' };
 }
 
+export async function revokeBadgeManually(formData: FormData) {
+  await checkAdmin();
+
+  const badge_id = (formData.get('badge_id') as string || '').trim();
+  const discord_id = (formData.get('discord_id') as string || '').trim();
+
+  if (!badge_id || !discord_id) return { success: false, message: 'Preencha todos os campos.' };
+
+  // Check user exists
+  const { data: user } = await db.from('users').select('id').eq('discord_id', discord_id).single();
+  if (!user) return { success: false, message: 'Usuário não encontrado.' };
+
+  // Check if they have the badge
+  const { data: hasBadge } = await db.from('user_badges').select('id').eq('user_id', discord_id).eq('badge_id', badge_id).single();
+  if (!hasBadge) return { success: false, message: 'Este membro não possui essa insígnia.' };
+
+  await db.from('user_badges').delete().eq('user_id', discord_id).eq('badge_id', badge_id);
+
+  revalidatePath('/admin');
+  return { success: true, message: 'Insígnia removida com sucesso!' };
+}
+
 export async function updateDisplayName(formData: FormData) {
   await checkAdmin();
 

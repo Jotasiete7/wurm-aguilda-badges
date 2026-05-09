@@ -85,9 +85,10 @@ DECLARE
   v_used_count INT;
   v_expires_at TIMESTAMP WITH TIME ZONE;
 BEGIN
-  -- 1. Security Check: Ensure caller is redeeming for themselves
-  -- auth.uid() returns uuid, p_user_id is text in this schema
-  IF auth.uid()::text IS DISTINCT FROM p_user_id THEN
+  -- 1. Security Check: Ensure caller is the service_role (called from Next.js server actions)
+  -- Since we use NextAuth, auth.uid() will be null. We trust the server action to pass the correct p_user_id
+  -- We must guarantee this is called by the service role, not an anon user.
+  IF auth.role() != 'service_role' THEN
     RETURN jsonb_build_object('success', false, 'error', 'UNAUTHORIZED');
   END IF;
 
