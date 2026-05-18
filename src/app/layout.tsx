@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 import { LanguageProvider } from '@/lib/i18n'
 import { LayoutBase } from '@ecossistema-guilda/layout/LayoutBase'
+import Script from 'next/script'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -23,6 +24,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </LayoutBase>
         </LanguageProvider>
+        <Script 
+          src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js" 
+          strategy="afterInteractive" 
+        />
+        <Script id="kofi-widget" strategy="afterInteractive">
+          {`
+            kofiWidgetOverlay.draw('aguildanode', {
+              'type': 'floating-chat',
+              'floating-chat.donateButton.text': 'Support Us',
+              'floating-chat.donateButton.background-color': '#fcbf47',
+              'floating-chat.donateButton.text-color': '#323842'
+            });
+          `}
+        </Script>
       </body>
     </html>
   )

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Coffee } from 'lucide-react';
 import { auth, signOut } from '@/auth';
 import db from '@/lib/db';
 import { HeaderBridge } from './HeaderBridge';
