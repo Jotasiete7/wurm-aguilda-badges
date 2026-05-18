@@ -44,21 +44,23 @@ export default function PlayerProfile({ user, owned, total }: Props) {
     }
   };
 
+  const displayName = user.name === 'Adventurer' ? t('Adventurer', 'Aventureiro') : user.name;
+
   // Show discord name as subtitle only if display_name was set (they differ)
-  const hasCustomName = user.discordName && user.discordName !== user.name;
+  const hasCustomName = user.discordName && user.discordName !== displayName;
 
   return (
     <div className={styles.profileCard}>
       <div className={styles.left}>
         <div className={styles.avatarWrapper}>
           {user.image ? (
-            <img src={user.image} alt={typeof user.name === 'string' ? user.name : 'User'} className={styles.avatar} />
+            <img src={user.image} alt={displayName} className={styles.avatar} />
           ) : (
-            <div className={styles.avatarFallback}>{typeof user.name === 'string' ? user.name[0] : 'U'}</div>
+            <div className={styles.avatarFallback}>{displayName[0] || 'U'}</div>
           )}
         </div>
         <div className={styles.userInfo}>
-          <h2 className={styles.username}>{user.name}</h2>
+          <h2 className={styles.username}>{displayName}</h2>
           {hasCustomName && (
             <p className={styles.discordSub}>@{user.discordName}</p>
           )}

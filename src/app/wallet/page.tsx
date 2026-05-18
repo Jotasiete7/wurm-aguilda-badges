@@ -68,7 +68,7 @@ export default async function WalletPage() {
   const { data: dbUser } = await db.from('users').select('display_name, username').eq('id', userId).single();
 
   const user = {
-    name: dbUser?.display_name || dbUser?.username || session.user.name || <T en="Adventurer" pt="Aventureiro" />,
+    name: dbUser?.display_name || dbUser?.username || session.user.name || 'Adventurer',
     discordName: session.user.name || '',
     image: session.user.image || null,
     id: userId,

@@ -28,8 +28,10 @@ export default async function PublicProfilePage({ params }: Props) {
   const { data: badgesRaw } = await db.from('badges').select('*');
 
   // Convert to expected format and calculate serial numbers
-  const badges: BadgeEntry[] = await Promise.all((userBadgesRaw || []).map(async (ub: any) => {
+  // Convert to expected format and calculate serial numbers
+  const badges: BadgeEntry[] = (await Promise.all((userBadgesRaw || []).map(async (ub: any) => {
     const b = badgesRaw?.find(badge => badge.id === ub.badge_id);
+    if (!b) return null;
     
     // Count how many people claimed this badge on or before the user did
     const { count } = await db
@@ -45,7 +47,7 @@ export default async function PublicProfilePage({ params }: Props) {
       owned: true,
       serial_number: count || 1,
     };
-  }));
+  }))).filter((b): b is BadgeEntry => b !== null);
 
   const sortedBadges = badges.sort((a, b) => a.name.localeCompare(b.name));
   
