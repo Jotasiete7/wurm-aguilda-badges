@@ -38,6 +38,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             });
           `}
         </Script>
+        <style dangerouslySetInnerHTML={{__html: `
+          .floatingchat-container-wrap {
+            left: unset !important;
+            right: 16px !important;
+          }
+          .floatingchat-container-wrap-mobi {
+            left: unset !important;
+            right: 16px !important;
+          }
+          .floating-chat-kofi-popup-iframe {
+            left: unset !important;
+            right: 16px !important;
+          }
+        `}} />
       </body>
     </html>
   )
