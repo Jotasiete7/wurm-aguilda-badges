@@ -38,11 +38,6 @@ export default async function AdminPage() {
     id: b.id, name: b.name, rarity: b.rarity, max_supply: b.max_supply, total: b.user_badges?.length || 0
   })).sort((a, b) => b.total - a.total) || [];
 
-  const { data: rankingRaw } = await db.from('users').select('username, avatar, discord_id, user_badges(id)');
-  const ranking = rankingRaw?.map((u: any) => ({
-    username: u.username, avatar: u.avatar, discord_id: u.discord_id, total: u.user_badges?.length || 0
-  })).filter(u => u.total > 0).sort((a, b) => b.total - a.total).slice(0, 10) || [];
-
   // Fetch all members + admin status for the Members tab
   const { data: allAdmins } = await db.from('admins').select('discord_id');
   const adminIds = new Set((allAdmins || []).map((a: any) => a.discord_id));
@@ -118,151 +113,135 @@ export default async function AdminPage() {
           )}
         </section>
 
-        {/* ── RANKING ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🏆 Ranking de Colecionadores</h2>
-          {ranking.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>Ainda sem dados de ranking.</p>
-          ) : (
-            <div className={styles.rankingList}>
-              {ranking.map((u: any, i: number) => (
-                <div key={u.discord_id} className={styles.rankItem}>
-                  <span className={styles.rankPos}>#{i + 1}</span>
-                  {u.avatar && <img src={u.avatar} alt={u.username} className={styles.rankAvatar} />}
-                  <span className={styles.rankName}>{u.username}</span>
-                  <span className={styles.rankCount}>{u.total} emblema{u.total !== 1 ? 's' : ''}</span>
+        {/* ── SEÇÃO DE CONTROLES (GRID LADO A LADO) ── */}
+        <div className={styles.grid}>
+          {/* ── CRIAR INSÍGNIA ── */}
+          <section className={styles.section} style={{ marginBottom: 0 }}>
+            <h2 className={styles.sectionTitle}>⚔ Forjar Nova Insígnia</h2>
+            <div className="card">
+              <AdminForm action={createBadge} submitLabel="Forjar Insígnia">
+                <div className={styles.formGroup}>
+                  <label>Nome</label>
+                  <input type="text" name="name" className="input" required maxLength={80} />
                 </div>
-              ))}
+                <div className={styles.formGroup}>
+                  <label>Descrição</label>
+                  <textarea name="description" className={`input ${styles.textarea}`} rows={3} maxLength={500} />
+                </div>
+                <ImagePreviewInput />
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Categoria</label>
+                    <select name="category" className="input" required>
+                      <option value="Evento">Evento</option>
+                      <option value="Ofício">Ofício</option>
+                      <option value="Contribuição">Contribuição</option>
+                      <option value="Combate">Combate</option>
+                      <option value="Território">Território</option>
+                      <option value="Segredo">Segredo</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Raridade</label>
+                    <select name="rarity" className="input" required>
+                      <option value="Comum">Comum</option>
+                      <option value="Rara">Rara</option>
+                      <option value="Epica">Épica</option>
+                      <option value="Lendaria">Lendária</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Tiragem Máxima (vazio = ∞)</label>
+                    <input type="number" name="max_supply" className="input" min="1" placeholder="Ex: 50" />
+                  </div>
+                </div>
+              </AdminForm>
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* ── CRIAR INSÍGNIA ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>⚔ Forjar Nova Insígnia</h2>
-          <div className="card" style={{ maxWidth: 640 }}>
-            <AdminForm action={createBadge} submitLabel="Forjar Insígnia">
-              <div className={styles.formGroup}>
-                <label>Nome</label>
-                <input type="text" name="name" className="input" required maxLength={80} />
-              </div>
-              <div className={styles.formGroup}>
-                <label>Descrição</label>
-                <textarea name="description" className={`input ${styles.textarea}`} rows={3} maxLength={500} />
-              </div>
-              <ImagePreviewInput />
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Categoria</label>
-                  <select name="category" className="input" required>
-                    <option value="Evento">Evento</option>
-                    <option value="Ofício">Ofício</option>
-                    <option value="Contribuição">Contribuição</option>
-                    <option value="Combate">Combate</option>
-                    <option value="Território">Território</option>
-                    <option value="Segredo">Segredo</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Raridade</label>
-                  <select name="rarity" className="input" required>
-                    <option value="Comum">Comum</option>
-                    <option value="Rara">Rara</option>
-                    <option value="Epica">Épica</option>
-                    <option value="Lendaria">Lendária</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Tiragem Máxima (vazio = ∞)</label>
-                  <input type="number" name="max_supply" className="input" min="1" placeholder="Ex: 50" />
-                </div>
-              </div>
-            </AdminForm>
-          </div>
-        </section>
-
-        {/* ── GERAR CÓDIGO ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🔑 Gerar Código de Resgate</h2>
-          <div className="card" style={{ maxWidth: 640 }}>
-            <AdminForm action={createCode} submitLabel="Gerar Código">
-              <div className={styles.formGroup}>
-                <label>Insígnia</label>
-                <select name="badge_id" className="input" required>
-                  {!badges || badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
-                  {badges?.map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Código de Resgate (Sugerido)</label>
-                <input type="text" name="code" className="input" required minLength={3} maxLength={40}
-                  defaultValue={generateSecureCode(12)}
-                  style={{ fontFamily: 'monospace', letterSpacing: 1 }} />
-                <p className={styles.hint}>Dica: Use o código seguro gerado acima ou defina um padrão difícil de adivinhar.</p>
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Limite de Usos (vazio = ilimitado)</label>
-                  <input type="number" name="max_uses" className="input" min="1" />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Expiração (opcional)</label>
-                  <input type="datetime-local" name="expires_at" className="input" />
-                </div>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Nota Interna (Opcional - Ex: Evento de Construção)</label>
-                <input type="text" name="note" className="input" placeholder="Para controle interno dos admins" />
-              </div>
-            </AdminForm>
-          </div>
-        </section>
-
-        {/* ── GERENCIAMENTO MANUAL DE INSÍGNIAS ── */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🎖 Gerenciar Insígnia do Membro</h2>
-          <div className="card" style={{ maxWidth: 640 }}>
-            <AdminForm action={manageBadgeManually} submitLabel="Executar Ação" variant="accent">
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Ação</label>
-                  <select name="operation" className="input" required>
-                    <option value="grant">➕ Conceder Insígnia</option>
-                    <option value="revoke">🗑 Remover Insígnia</option>
-                  </select>
-                </div>
+          {/* ── GERAR CÓDIGO ── */}
+          <section className={styles.section} style={{ marginBottom: 0 }}>
+            <h2 className={styles.sectionTitle}>🔑 Gerar Código de Resgate</h2>
+            <div className="card">
+              <AdminForm action={createCode} submitLabel="Gerar Código">
                 <div className={styles.formGroup}>
                   <label>Insígnia</label>
                   <select name="badge_id" className="input" required>
+                    {!badges || badges.length === 0 && <option value="">Nenhuma insígnia forjada</option>}
                     {badges?.map((b: any) => (
                       <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Membro</label>
-                <select name="discord_id" className="input" required>
-                  <option value="">Selecione um membro...</option>
-                  {allMembers.map((m: any) => (
-                    <option key={m.discord_id} value={m.discord_id}>
-                      {m.display_name ? `${m.display_name} (@${m.username})` : m.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </AdminForm>
-          </div>
-        </section>
+                <div className={styles.formGroup}>
+                  <label>Código de Resgate (Sugerido)</label>
+                  <input type="text" name="code" className="input" required minLength={3} maxLength={40}
+                    defaultValue={generateSecureCode(12)}
+                    style={{ fontFamily: 'monospace', letterSpacing: 1 }} />
+                  <p className={styles.hint}>Dica: Use o código seguro gerado acima ou defina um padrão difícil de adivinhar.</p>
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Limite de Usos (vazio = ilimitado)</label>
+                    <input type="number" name="max_uses" className="input" min="1" />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Expiração (opcional)</label>
+                    <input type="datetime-local" name="expires_at" className="input" />
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Nota Interna (Opcional - Ex: Evento de Construção)</label>
+                  <input type="text" name="note" className="input" placeholder="Para controle interno dos admins" />
+                </div>
+              </AdminForm>
+            </div>
+          </section>
+
+          {/* ── GERENCIAMENTO MANUAL DE INSÍGNIAS ── */}
+          <section className={styles.section} style={{ marginBottom: 0 }}>
+            <h2 className={styles.sectionTitle}>🎖 Gerenciar Insígnia do Membro</h2>
+            <div className="card">
+              <AdminForm action={manageBadgeManually} submitLabel="Executar Ação" variant="accent">
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Ação</label>
+                    <select name="operation" className="input" required>
+                      <option value="grant">➕ Conceder Insígnia</option>
+                      <option value="revoke">🗑 Remover Insígnia</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Insígnia</label>
+                    <select name="badge_id" className="input" required>
+                      {badges?.map((b: any) => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Membro</label>
+                  <select name="discord_id" className="input" required>
+                    <option value="">Selecione um membro...</option>
+                    {allMembers.map((m: any) => (
+                      <option key={m.discord_id} value={m.discord_id}>
+                        {m.display_name ? `${m.display_name} (@${m.username})` : m.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </AdminForm>
+            </div>
+          </section>
+        </div>
 
         {/* ── TABELA DE CÓDIGOS ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>📋 Códigos Ativos</h2>
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
             <table className={styles.table}>
-              <thead>
+              <thead style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'var(--bg-secondary)' }}>
                 <tr>
                   <th>Código</th>
                   <th>Insígnia</th>
@@ -299,9 +278,9 @@ export default async function AdminPage() {
         {/* ── HISTÓRICO DE RESGATES ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>📜 Histórico de Resgates</h2>
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
             <table className={styles.table}>
-              <thead>
+              <thead style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'var(--bg-secondary)' }}>
                 <tr>
                   <th>Membro</th>
                   <th>Código</th>
