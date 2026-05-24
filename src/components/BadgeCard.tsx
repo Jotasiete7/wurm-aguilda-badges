@@ -75,7 +75,10 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
           <img
             src={badge.image_url}
             alt={isGhost ? t('Locked', 'Bloqueada') : badge.name}
-            className={`${styles.badgeImage} ${isGhost ? styles.ghostImage : ''}`}
+            className={`${styles.badgeImage} ${isGhost ? styles.ghostImage : ''} select-none`}
+            loading="lazy"
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
             onError={(e) => {
               (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23222"/><text x="60" y="65" text-anchor="middle" font-size="40">🏅</text></svg>`;
             }}
@@ -110,7 +113,10 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
               <img
                 src={badge.image_url}
                 alt={badge.name}
-                className={styles.modalImage}
+                className={`${styles.modalImage} select-none`}
+                loading="lazy"
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23222"/><text x="100" y="110" text-anchor="middle" font-size="60">🏅</text></svg>`;
                 }}
@@ -169,7 +175,10 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
           <img 
             src={badge.image_url} 
             alt={badge.name} 
-            className={styles.zoomedImage}
+            className={`${styles.zoomedImage} select-none`}
+            loading="lazy"
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            draggable={false}
             onClick={(e) => e.stopPropagation()} 
           />
         </div>
