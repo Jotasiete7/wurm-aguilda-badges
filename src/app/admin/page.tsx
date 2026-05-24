@@ -56,6 +56,27 @@ export default async function AdminPage() {
     is_admin: adminIds.has(u.discord_id),
   }));
 
+  // Fetch redemption history
+  const { data: historyRaw } = await db.from('code_redemptions')
+    .select(`
+      id,
+      redeemed_at,
+      codes ( code, badges ( name ) ),
+      users ( username, display_name, avatar )
+    `)
+    .order('redeemed_at', { ascending: false })
+    .limit(50);
+
+  const history = historyRaw?.map((h: any) => ({
+    id: h.id,
+    redeemed_at: h.redeemed_at,
+    code: h.codes?.code,
+    badge_name: h.codes?.badges?.name,
+    username: h.users?.username,
+    display_name: h.users?.display_name,
+    avatar: h.users?.avatar
+  })) || [];
+
   return (
     <div className={styles.wrapper}>
       <Header />
@@ -274,6 +295,47 @@ export default async function AdminPage() {
             </table>
           </div>
         </section>
+
+        {/* ── HISTÓRICO DE RESGATES ── */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>📜 Histórico de Resgates</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Membro</th>
+                  <th>Código</th>
+                  <th>Insígnia</th>
+                  <th>Data / Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.length === 0 ? (
+                  <tr><td colSpan={4} style={{ textAlign: 'center', opacity: 0.5 }}>Nenhum resgate registrado ainda.</td></tr>
+                ) : (
+                  history.map((h: any) => (
+                    <tr key={h.id}>
+                      <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {h.avatar ? (
+                          <img src={h.avatar} alt={h.username} style={{ width: 24, height: 24, borderRadius: '50%' }} />
+                        ) : (
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: 'var(--bg-card)' }} />
+                        )}
+                        <span>{h.display_name || h.username} <span style={{ opacity: 0.5, fontSize: '0.85em' }}>@{h.username}</span></span>
+                      </td>
+                      <td style={{ fontFamily: 'monospace', color: 'var(--accent)', letterSpacing: 1 }}>{h.code || '—'}</td>
+                      <td>{h.badge_name || '—'}</td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        {h.redeemed_at ? new Date(h.redeemed_at).toLocaleString('pt-BR') : '—'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         {/* ── MEMBROS ── */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>👥 Gerenciar Membros</h2>
