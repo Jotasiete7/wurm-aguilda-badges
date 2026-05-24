@@ -16,15 +16,35 @@ interface Member {
 
 export default function MembersTab({ members }: { members: Member[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredMembers = members.filter(m => {
+    const query = searchQuery.toLowerCase();
+    const nameMatch = m.username.toLowerCase().includes(query) || 
+                      (m.display_name && m.display_name.toLowerCase().includes(query));
+    return nameMatch;
+  });
 
   return (
-    <div className={styles.membersList}>
-      {members.length === 0 ? (
-        <p style={{ color: 'var(--text-muted)' }}>
-          Nenhum membro registrado ainda. Os jogadores aparecem aqui após o primeiro login.
-        </p>
+    <div>
+      <div style={{ marginBottom: '1rem' }}>
+        <input 
+          type="text" 
+          className="input" 
+          placeholder="Buscar por nome ou discord..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+        <div className={styles.membersList}>
+          {filteredMembers.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>
+              Nenhum membro encontrado.
+            </p>
       ) : (
-        members.map((m) => (
+        filteredMembers.map((m) => (
           <div key={m.discord_id} className={styles.memberCard}>
             {/* Avatar + Info */}
             <div className={styles.memberInfo}>
@@ -88,8 +108,10 @@ export default function MembersTab({ members }: { members: Member[] }) {
               </AdminForm>
             </div>
           </div>
-        ))
-      )}
+          ))
+        )}
+        </div>
+      </div>
     </div>
   );
 }
