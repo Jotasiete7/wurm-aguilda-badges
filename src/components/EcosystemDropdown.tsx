@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Network, Home, BookOpen, Pickaxe, LineChart, BookMarked, Hammer, Shield, Gavel } from 'lucide-react';
+import { Network, Home, BookOpen, Pickaxe, LineChart, BookMarked, Hammer, Shield, Gavel, Map } from 'lucide-react';
 import styles from './EcosystemDropdown.module.css';
 import { useLanguage } from '@/lib/i18n';
 
@@ -60,6 +60,12 @@ const EcosystemDropdown: React.FC = () => {
             label: 'Guilda Badges',
             href: '/',
             icon: Shield,
+        },
+        {
+            id: 'prospect',
+            label: 'Prospect',
+            href: 'https://wurm-prospect-tool.pages.dev',
+            icon: Map,
         },
     ];
 
