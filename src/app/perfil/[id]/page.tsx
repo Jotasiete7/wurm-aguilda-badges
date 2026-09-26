@@ -23,22 +23,35 @@ export default async function PublicProfilePage({ params }: Props) {
     notFound();
   }
 
-  // 2. Fetch all badges owned by the user
-  const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', id);
-  const { data: badgesRaw } = await db.from('badges').select('*');
+  // 2. Fetch all badges and user badges in parallel
+  const [{ data: userBadgesRaw }, { data: badgesRaw }, { count: total }] = await Promise.all([
+    db.from('user_badges').select('*').eq('user_id', id),
+    db.from('badges').select('*'),
+    db.from('badges').select('id', { count: 'exact', head: true }),
+  ]);
 
-  // Convert to expected format and calculate serial numbers
-  // Convert to expected format and calculate serial numbers
-  const badges: BadgeEntry[] = (await Promise.all((userBadgesRaw || []).map(async (ub: any) => {
+  // Fetch claim timestamps for all owned badges in a single query
+  const ownedBadgeIds = (userBadgesRaw || []).map((u: any) => u.badge_id);
+  let claimTimestamps: { badge_id: string; created_at: string }[] = [];
+  if (ownedBadgeIds.length > 0) {
+    const { data: claims } = await db
+      .from('user_badges')
+      .select('badge_id, created_at')
+      .in('badge_id', ownedBadgeIds);
+    if (claims) {
+      claimTimestamps = claims;
+    }
+  }
+
+  // Convert to expected format and calculate serial numbers in memory
+  const badges: BadgeEntry[] = (userBadgesRaw || []).map((ub: any) => {
     const b = badgesRaw?.find(badge => badge.id === ub.badge_id);
     if (!b) return null;
-    
-    // Count how many people claimed this badge on or before the user did
-    const { count } = await db
-      .from('user_badges')
-      .select('id', { count: 'exact', head: true })
-      .eq('badge_id', ub.badge_id)
-      .lte('created_at', ub.created_at);
+
+    const ubTime = new Date(ub.created_at).getTime();
+    const count = claimTimestamps.filter(
+      (c: any) => c.badge_id === ub.badge_id && new Date(c.created_at).getTime() <= ubTime
+    ).length;
 
     return {
       ...b,
@@ -47,12 +60,9 @@ export default async function PublicProfilePage({ params }: Props) {
       owned: true,
       serial_number: count || 1,
     };
-  }))).filter((b): b is BadgeEntry => b !== null);
+  }).filter((b): b is BadgeEntry => b !== null);
 
   const sortedBadges = badges.sort((a, b) => a.name.localeCompare(b.name));
-  
-  // 3. Get total ecosystem badges for progress
-  const { count: total } = await db.from('badges').select('id', { count: 'exact', head: true });
 
   const profileUser = {
     name: user.username,

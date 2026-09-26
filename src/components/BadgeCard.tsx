@@ -24,10 +24,26 @@ interface BadgeModalProps {
   badge: Badge;
 }
 
+const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23222"/><text x="60" y="65" text-anchor="middle" font-size="40">🏅</text></svg>`;
+const FALLBACK_MODAL_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23222"/><text x="100" y="110" text-anchor="middle" font-size="60">🏅</text></svg>`;
+
 export default function BadgeCard({ badge }: BadgeModalProps) {
   const { t, lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+
+  // Progressive image loading with fallback:
+  // 1. Try local optimized WebP
+  // 2. Fall back to remote badge.image_url if local doesn't exist
+  // 3. Fall back to SVG placeholder if remote fails
+  const [thumbSrc, setThumbSrc] = useState<string>(`/badges/${badge.id}.webp`);
+  const [modalSrc, setModalSrc] = useState<string>(`/badges/${badge.id}.webp`);
+  const [zoomSrc, setZoomSrc] = useState<string>(`/badges/${badge.id}-full.webp`);
+
+  const [thumbLoaded, setThumbLoaded] = useState(false);
+  const [modalLoaded, setModalLoaded] = useState(false);
+  const [zoomLoaded, setZoomLoaded] = useState(false);
+
   const rarityClass = badge.rarity.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') as string;
 
   const RARITY_LABELS: Record<string, string> = {
@@ -61,6 +77,30 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
     setIsZoomed(true);
   };
 
+  const handleThumbError = () => {
+    if (thumbSrc !== badge.image_url) {
+      setThumbSrc(badge.image_url);
+    } else {
+      setThumbSrc(FALLBACK_SVG);
+    }
+  };
+
+  const handleModalError = () => {
+    if (modalSrc !== badge.image_url) {
+      setModalSrc(badge.image_url);
+    } else {
+      setModalSrc(FALLBACK_MODAL_SVG);
+    }
+  };
+
+  const handleZoomError = () => {
+    if (zoomSrc !== badge.image_url) {
+      setZoomSrc(badge.image_url);
+    } else {
+      setZoomSrc(FALLBACK_MODAL_SVG);
+    }
+  };
+
   return (
     <>
       <div
@@ -72,16 +112,18 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
         onKeyDown={(e) => !isGhost && e.key === 'Enter' && setIsOpen(true)}
       >
         <div className={styles.imageContainer}>
+          {!thumbLoaded && <div className={styles.imageSkeleton} />}
           <img
-            src={badge.image_url}
+            src={thumbSrc}
             alt={isGhost ? t('Locked', 'Bloqueada') : badge.name}
             className={`${styles.badgeImage} ${isGhost ? styles.ghostImage : ''} select-none`}
             loading="lazy"
+            decoding="async"
+            style={{ opacity: thumbLoaded ? 1 : 0 }}
+            onLoad={() => setThumbLoaded(true)}
+            onError={handleThumbError}
             onContextMenu={(e) => e.preventDefault()}
             draggable={false}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect width="120" height="120" fill="%23222"/><text x="60" y="65" text-anchor="middle" font-size="40">🏅</text></svg>`;
-            }}
           />
           {!isGhost && (
             <div className={styles.supplyLabel}>
@@ -110,16 +152,18 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
             <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>✕</button>
 
             <div className={styles.modalImageWrapper}>
+              {!modalLoaded && <div className={styles.imageSkeleton} />}
               <img
-                src={badge.image_url}
+                src={modalSrc}
                 alt={badge.name}
                 className={`${styles.modalImage} select-none`}
-                loading="lazy"
+                loading="eager"
+                decoding="async"
+                style={{ opacity: modalLoaded ? 1 : 0, transition: 'opacity 0.2s ease' }}
+                onLoad={() => setModalLoaded(true)}
+                onError={handleModalError}
                 onContextMenu={(e) => e.preventDefault()}
                 draggable={false}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23222"/><text x="100" y="110" text-anchor="middle" font-size="60">🏅</text></svg>`;
-                }}
               />
               <button 
                 className={styles.zoomTrigger} 
@@ -172,11 +216,16 @@ export default function BadgeCard({ badge }: BadgeModalProps) {
           <button className={styles.zoomClose} onClick={() => setIsZoomed(false)}>
             <X size={24} />
           </button>
+          {!zoomLoaded && <div className={styles.imageSkeleton} style={{ zIndex: 1 }} />}
           <img 
-            src={badge.image_url} 
+            src={zoomSrc} 
             alt={badge.name} 
             className={`${styles.zoomedImage} select-none`}
-            loading="lazy"
+            loading="eager"
+            decoding="async"
+            style={{ opacity: zoomLoaded ? 1 : 0, transition: 'opacity 0.25s ease' }}
+            onLoad={() => setZoomLoaded(true)}
+            onError={handleZoomError}
             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
             draggable={false}
             onClick={(e) => e.stopPropagation()} 

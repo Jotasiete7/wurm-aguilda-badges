@@ -29,21 +29,36 @@ export default async function WalletPage() {
 
   const userId = session.user.id;
 
-  // All badges in the system + user's own badges
-  const { data: badgesRaw } = await db.from('badges').select('*');
-  const { data: userBadgesRaw } = await db.from('user_badges').select('*').eq('user_id', userId);
+  // 1. Fetch badges, user's badges, and profile data in parallel
+  const [{ data: badgesRaw }, { data: userBadgesRaw }, { data: dbUser }] = await Promise.all([
+    db.from('badges').select('*'),
+    db.from('user_badges').select('*').eq('user_id', userId),
+    db.from('users').select('display_name, username').eq('id', userId).single(),
+  ]);
 
-  // To calculate the "Serial Number" (rank) for each badge the user owns
-  const badges: BadgeEntry[] = await Promise.all((badgesRaw || []).map(async (b: any) => {
+  // 2. Fetch timestamps for all user-owned badges in ONE single query (eliminates N+1 queries)
+  const ownedBadgeIds = (userBadgesRaw || []).map((u: any) => u.badge_id);
+  let claimTimestamps: { badge_id: string; created_at: string }[] = [];
+  if (ownedBadgeIds.length > 0) {
+    const { data: claims } = await db
+      .from('user_badges')
+      .select('badge_id, created_at')
+      .in('badge_id', ownedBadgeIds);
+    if (claims) {
+      claimTimestamps = claims;
+    }
+  }
+
+  // 3. Calculate serial numbers in memory (< 1ms)
+  const badges: BadgeEntry[] = (badgesRaw || []).map((b: any) => {
     const ub = userBadgesRaw?.find((u: any) => u.badge_id === b.id);
     
     let serialNumber = undefined;
     if (ub) {
-      const { count } = await db
-        .from('user_badges')
-        .select('id', { count: 'exact', head: true })
-        .eq('badge_id', b.id)
-        .lte('created_at', ub.created_at);
+      const ubTime = new Date(ub.created_at).getTime();
+      const count = claimTimestamps.filter(
+        (c: any) => c.badge_id === b.id && new Date(c.created_at).getTime() <= ubTime
+      ).length;
       serialNumber = count || 1;
     }
 
@@ -54,7 +69,7 @@ export default async function WalletPage() {
       owned: !!ub,
       serial_number: serialNumber,
     };
-  }));
+  });
 
   const sortedBadges = badges.sort((a, b) => {
     if (a.owned && !b.owned) return -1;
@@ -64,8 +79,6 @@ export default async function WalletPage() {
 
   const owned = sortedBadges.filter(b => b.owned);
   const total = sortedBadges.length;
-
-  const { data: dbUser } = await db.from('users').select('display_name, username').eq('id', userId).single();
 
   const user = {
     name: dbUser?.display_name || dbUser?.username || session.user.name || 'Adventurer',
